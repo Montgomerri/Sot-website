@@ -1,66 +1,96 @@
-/* Reset */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+
+@import "shadcn/tailwind.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+@layer base {
+
+  :root {
+    --background: oklch(1 0 0);
+    --foreground: oklch(0.145 0 0);
+
+    --card: oklch(1 0 0);
+    --card-foreground: oklch(0.145 0 0);
+
+    --popover: oklch(1 0 0);
+    --popover-foreground: oklch(0.145 0 0);
+
+    --primary: oklch(0.205 0 0);
+    --primary-foreground: oklch(0.985 0 0);
+
+    --secondary: oklch(0.97 0 0);
+    --secondary-foreground: oklch(0.205 0 0);
+
+    --muted: oklch(0.97 0 0);
+    --muted-foreground: oklch(0.556 0 0);
+
+    --accent: oklch(0.97 0 0);
+    --accent-foreground: oklch(0.205 0 0);
+
+    --destructive: oklch(0.577 0.245 27.325);
+
+    --border: oklch(0.922 0 0);
+    --input: oklch(0.922 0 0);
+    --ring: oklch(0.708 0 0);
+
+    --radius: 0.625rem;
+  }
+
+
+  .dark {
+    --background: oklch(0.145 0 0);
+    --foreground: oklch(0.985 0 0);
+
+    --card: oklch(0.205 0 0);
+    --card-foreground: oklch(0.985 0 0);
+
+    --primary: oklch(0.922 0 0);
+    --primary-foreground: oklch(0.205 0 0);
+
+    --border: oklch(1 0 0 / 10%);
+    --input: oklch(1 0 0 / 15%);
+    --ring: oklch(0.556 0 0);
+  }
+
+
+  * {
+    border-color: var(--border);
+  }
+
+
+  body {
+    background: var(--background);
+    color: var(--foreground);
+  }
+
+
+  
+
 }
 
-body {
-  font-family: "Inter", sans-serif;
-  background: #ffffff; /* light pinkish background like design */
-  color: #111;
-}
 
-/* Containers */
-.container {
-  width: 90%;
-  max-width: 1200px;
-  margin: auto;
-}
+@theme inline {
 
-/* Sections */
-.section {
-  padding: 80px 0;
-}
+  --animate-shine: shine var(--duration) infinite linear;
 
-/* Card */
-.card {
-  background: #ffffff;
-  border-radius: 16px;
-  padding: 20px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-  transition: transform 0.3s ease;
-}
-.card:hover {
-  transform: translateY(-5px);
-}
 
-/* Buttons */
-.btn {
-  background: #0ecb81; /* green CTA */
-  color: white;
-  padding: 10px 20px;
-  border-radius: 30px;
-  border: none;
-  cursor: pointer;
-}
-.btn-secondary {
-  background: #ff6d5a; /* orange secondary */
-}
-.btn:hover {
-  opacity: 0.9;
-}
+  @keyframes shine {
 
-/* Text Colors */
-.text-primary { color: #111; }
-.text-sub { color: #666; }
+    0% {
+      background-position: 0% 0%;
+    }
 
-/* Flex Utilities */
-.flex { display: flex; }
-.justify-between { justify-content: space-between; }
-.items-center { align-items: center; }
-.gap-20 { gap: 20px; }
+    50% {
+      background-position: 100% 100%;
+    }
 
-/* Responsive Grid */
-.grid { display: grid; gap: 20px; }
-.grid-3 { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+    to {
+      background-position: 0% 0%;
+    }
+
+  }
+
+}

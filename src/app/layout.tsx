@@ -1,10 +1,5 @@
 import "./globals.css";
-import Script from "next/script";
-
-export const metadata = {
-  title: "Department of Computer Science",
-  description: "Official Departmental Website",
-};
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 export default function RootLayout({
   children,
@@ -13,16 +8,17 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>
-        {children}
 
-        {/* Chatbase Chatbot Script */}
-        <Script
-          src="https://www.chatbase.co/embed.min.js"
-          id="kb7EDUojle9U7iyXXiloJ"
-          strategy="afterInteractive"
-        />
+      <body>
+
+        <TooltipProvider>
+
+          {children}
+
+        </TooltipProvider>
+
       </body>
+
     </html>
   );
 }
