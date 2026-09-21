@@ -27,6 +27,10 @@ interface Props {
   onDelete: (
     id: string
   ) => Promise<void>;
+
+  onOpenChannels: () => void;
+
+  onOpenMembers: () => void;
 }
 
 export default function ChatArea({
@@ -35,6 +39,8 @@ export default function ChatArea({
   currentUserId,
   onEdit,
   onDelete,
+  onOpenChannels,
+  onOpenMembers,
 }: Props) {
   const [replyingTo, setReplyingTo] =
     useState<LobbyMessage | null>(null);
@@ -61,8 +67,11 @@ export default function ChatArea({
   }
 
   return (
-    <main className="flex flex-1 flex-col bg-white">
-      <ChatHeader />
+    <main className="flex min-w-0 flex-1 flex-col bg-white">
+      <ChatHeader
+        onOpenChannels={onOpenChannels}
+        onOpenMembers={onOpenMembers}
+      />
 
       <MessageList
         messages={messages}

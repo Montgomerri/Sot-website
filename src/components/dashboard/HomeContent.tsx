@@ -5,8 +5,7 @@ import QuestionList from "@/components/questions/QuestionList";
 
 export default function HomeContent() {
   return (
-    <div className="max-w-[820px] mx-auto px-6 py-6">
-
+    <div className="mx-auto w-full max-w-[820px] px-3 py-4 sm:px-6 sm:py-6">
       <WelcomeCard />
 
       <StatsSection />
@@ -14,7 +13,6 @@ export default function HomeContent() {
       <QuestionOfTheDay />
 
       <QuestionList />
-
     </div>
   );
 }

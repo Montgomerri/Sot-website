@@ -7,9 +7,7 @@ import {
   useState,
 } from "react";
 
-import {
-  ArrowDown,
-} from "lucide-react";
+import { ArrowDown } from "lucide-react";
 
 import MessageBubble from "./MessageBubble";
 import { LobbyMessage } from "@/types/lobby";
@@ -138,6 +136,32 @@ export default function MessageList({
     setIsAtBottom(true);
   }
 
+  function jumpToMessage(
+    messageId: string
+  ) {
+    const element =
+      document.getElementById(
+        `message-${messageId}`
+      );
+
+    if (!element) return;
+
+    element.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
+
+    element.classList.add(
+      "bg-blue-50"
+    );
+
+    window.setTimeout(() => {
+      element.classList.remove(
+        "bg-blue-50"
+      );
+    }, 1500);
+  }
+
   if (messages.length === 0) {
     return (
       <div
@@ -159,16 +183,20 @@ export default function MessageList({
       <div
         ref={containerRef}
         className="
-          h-full
-          overflow-y-auto
-          py-4
-          scroll-smooth
-        "
+  h-full
+  min-w-0
+  overflow-x-hidden
+  overflow-y-auto
+  py-3
+  scroll-smooth
+  sm:py-4
+"
       >
         {messages.map((message) => (
           <div
             key={message.id}
             id={`message-${message.id}`}
+            className="transition-colors duration-300"
           >
             <MessageBubble
               id={message.id}
@@ -203,6 +231,9 @@ export default function MessageList({
               onEdit={onEdit}
               onDelete={onDelete}
               onReply={onReply}
+              onJumpToMessage={
+                jumpToMessage
+              }
             />
           </div>
         ))}

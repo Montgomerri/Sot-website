@@ -1,13 +1,14 @@
-
 @import "shadcn/tailwind.css";
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* =========================================================
+   DESIGN TOKENS
+   ========================================================= */
 
 @layer base {
-
   :root {
     --background: oklch(1 0 0);
     --foreground: oklch(0.145 0 0);
@@ -39,7 +40,6 @@
     --radius: 0.625rem;
   }
 
-
   .dark {
     --background: oklch(0.145 0 0);
     --foreground: oklch(0.985 0 0);
@@ -55,30 +55,239 @@
     --ring: oklch(0.556 0 0);
   }
 
-
+  /*
+   * Prevent borders from disappearing on components
+   * that rely on the shadcn border variable.
+   */
   * {
     border-color: var(--border);
   }
 
-
-  body {
-    background: var(--background);
-    color: var(--foreground);
+  /*
+   * Make sizing predictable throughout the application.
+   */
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
   }
 
+  html {
+    width: 100%;
+    min-width: 320px;
+    overflow-x: hidden;
+    -webkit-text-size-adjust: 100%;
+  }
 
-  
+  body {
+    width: 100%;
+    min-width: 320px;
+    min-height: 100%;
+    margin: 0;
 
+    background: var(--background);
+    color: var(--foreground);
+
+    overflow-x: hidden;
+
+    /*
+     * Prevent long words, URLs, question titles,
+     * usernames, etc. from forcing horizontal overflow.
+     */
+    overflow-wrap: anywhere;
+  }
+
+  /*
+   * Images should never exceed their containers.
+   */
+  img,
+  video,
+  canvas,
+  svg {
+    max-width: 100%;
+  }
+
+  img,
+  video {
+    height: auto;
+  }
+
+  /*
+   * Form controls should remain usable on mobile.
+   * 16px prevents iOS Safari from zooming inputs.
+   */
+  input,
+  textarea,
+  select {
+    max-width: 100%;
+    font-size: 16px;
+  }
+
+  textarea {
+    resize: vertical;
+  }
+
+  /*
+   * Long text/content should wrap rather than create
+   * horizontal page scrolling.
+   */
+  p,
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    overflow-wrap: anywhere;
+  }
+
+  /*
+   * Tables can be locally scrollable instead of
+   * forcing the entire page wider.
+   */
+  table {
+    max-width: 100%;
+  }
+
+  /*
+   * Make links and buttons behave predictably.
+   */
+  button,
+  a {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  button {
+    touch-action: manipulation;
+  }
 }
 
+/* =========================================================
+   RESPONSIVE UTILITIES
+   ========================================================= */
+
+@layer utilities {
+  /*
+   * Safe horizontal container.
+   */
+  .app-container {
+    width: 100%;
+    max-width: 1280px;
+    margin-inline: auto;
+    padding-inline: 1rem;
+  }
+
+  /*
+   * Prevent flex/grid children from forcing their
+   * parent wider than the viewport.
+   */
+  .min-w-0-responsive {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  /*
+   * Safe horizontal scrolling for things such as
+   * tabs, tag lists, and wide data.
+   */
+  .scroll-x {
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+  }
+
+  /*
+   * Better text wrapping for chat/question content.
+   */
+  .break-anywhere {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+}
+
+/* =========================================================
+   MOBILE FOUNDATION
+   ========================================================= */
+
+@media (max-width: 639px) {
+  .app-container {
+    padding-inline: 0.875rem;
+  }
+
+  /*
+   * Keep headings from becoming oversized on phones.
+   */
+  h1 {
+    font-size: clamp(1.5rem, 7vw, 2rem);
+    line-height: 1.15;
+  }
+
+  h2 {
+    font-size: clamp(1.25rem, 6vw, 1.75rem);
+    line-height: 1.2;
+  }
+
+  h3 {
+    font-size: clamp(1.125rem, 5vw, 1.5rem);
+    line-height: 1.25;
+  }
+}
+
+/* =========================================================
+   SMALL PHONE
+   ========================================================= */
+
+@media (max-width: 374px) {
+  .app-container {
+    padding-inline: 0.75rem;
+  }
+}
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media (min-width: 640px) {
+  .app-container {
+    padding-inline: 1.25rem;
+  }
+}
+
+/* =========================================================
+   DESKTOP
+   ========================================================= */
+
+@media (min-width: 1024px) {
+  .app-container {
+    padding-inline: 1.5rem;
+  }
+}
+
+/* =========================================================
+   ANIMATION
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* =========================================================
+   SHINE ANIMATION
+   ========================================================= */
 
 @theme inline {
-
   --animate-shine: shine var(--duration) infinite linear;
 
-
   @keyframes shine {
-
     0% {
       background-position: 0% 0%;
     }
@@ -90,7 +299,5 @@
     to {
       background-position: 0% 0%;
     }
-
   }
-
 }

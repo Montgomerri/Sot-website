@@ -1,11 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import Alert from "@/components/ui/Alert";
+
 import { createClient } from "@/lib/supabase/client";
-import { useRouter } from "next/navigation";
 
 export default function LoginForm() {
   const supabase = createClient();
@@ -15,18 +17,22 @@ export default function LoginForm() {
   const [password, setPassword] = useState("");
 
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] =
+    useState<string | null>(null);
 
-  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleLogin = async (
+    e: React.FormEvent<HTMLFormElement>
+  ) => {
     e.preventDefault();
 
     setLoading(true);
     setError(null);
 
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    const { error } =
+      await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
     setLoading(false);
 
@@ -35,21 +41,23 @@ export default function LoginForm() {
       return;
     }
 
-    // Ensure session is fully reflected in UI
     await supabase.auth.getSession();
 
-    // Redirect to dashboard
     router.push("/dashboard");
     router.refresh();
   };
 
   return (
-    <form onSubmit={handleLogin} className="space-y-4">
-      <div className="mb-6">
-        <h2 className="text-2xl font-semibold text-gray-900">
+    <form
+      onSubmit={handleLogin}
+      className="w-full space-y-4"
+    >
+      <div className="mb-5 sm:mb-6">
+        <h2 className="text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">
           Welcome back
         </h2>
-        <p className="text-sm text-gray-500 mt-1">
+
+        <p className="mt-1 text-sm text-gray-500">
           Login to continue
         </p>
       </div>
@@ -60,23 +68,41 @@ export default function LoginForm() {
         label="Email"
         type="email"
         value={email}
-        onChange={(e) => setEmail(e.target.value)}
+        disabled={loading}
+        required
+        onChange={(e) =>
+          setEmail(e.target.value)
+        }
       />
 
       <Input
         label="Password"
         type="password"
         value={password}
-        onChange={(e) => setPassword(e.target.value)}
+        disabled={loading}
+        required
+        onChange={(e) =>
+          setPassword(e.target.value)
+        }
       />
 
-      <Button type="submit" disabled={loading}>
-        {loading ? "Signing in..." : "Sign in"}
-      </Button>
+      <div className="pt-1">
+        <Button
+          type="submit"
+          disabled={loading}
+        >
+          {loading
+            ? "Signing in..."
+            : "Sign in"}
+        </Button>
+      </div>
 
-      <p className="text-xs text-gray-500 text-center mt-4">
-        Don’t have an account?{" "}
-        <a href="/signup" className="text-black font-medium">
+      <p className="pt-2 text-center text-xs leading-5 text-gray-500 sm:text-sm">
+        Don't have an account?{" "}
+        <a
+          href="/signup"
+          className="font-medium text-black underline-offset-4 hover:underline"
+        >
           Create account
         </a>
       </p>

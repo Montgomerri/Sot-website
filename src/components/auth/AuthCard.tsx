@@ -22,7 +22,7 @@ export default function AuthCard({
   children,
 }: AuthCardProps) {
   return (
-    <Card className="relative w-full max-w-md overflow-hidden shadow-xl">
+    <Card className="relative w-full overflow-hidden shadow-lg sm:shadow-xl">
       <ShineBorder
         shineColor={[
           "#2563eb",
@@ -32,17 +32,17 @@ export default function AuthCard({
         duration={10}
       />
 
-      <CardHeader>
-        <CardTitle className="text-2xl">
+      <CardHeader className="p-5 sm:p-6">
+        <CardTitle className="text-xl sm:text-2xl">
           {title}
         </CardTitle>
 
-        <CardDescription>
+        <CardDescription className="mt-1 text-sm leading-5">
           {description}
         </CardDescription>
       </CardHeader>
 
-      <CardContent>
+      <CardContent className="p-5 pt-0 sm:p-6 sm:pt-0">
         {children}
       </CardContent>
     </Card>

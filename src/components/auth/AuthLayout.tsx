@@ -6,90 +6,34 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div style={styles.wrapper}>
-      
-      <div style={styles.card}>
-        
-        {/* LEFT */}
-        <div style={styles.left}>
-          <h1 style={styles.title}>
-            Department Q&A Platform
-          </h1>
+    <main className="min-h-screen w-full bg-gray-100 px-3 py-6 sm:px-6 sm:py-10">
+      <div className="mx-auto flex w-full max-w-5xl overflow-hidden rounded-2xl bg-white shadow-xl">
+        {/* LEFT / BRANDING */}
+        <section className="hidden flex-1 bg-gray-900 p-8 text-white sm:flex sm:p-10 lg:p-12">
+          <div className="my-auto max-w-md">
+            <h1 className="text-2xl font-semibold leading-tight lg:text-3xl">
+              Department Q&A Platform
+            </h1>
 
-          <p style={styles.subtitle}>
-            Ask questions, share knowledge, and grow together.
-          </p>
+            <p className="mt-3 text-sm leading-6 text-gray-300 lg:text-base">
+              Ask questions, share knowledge, and grow together.
+            </p>
 
-          <div style={styles.list}>
-            <p>• Ask questions anytime</p>
-            <p>• Share answers with others</p>
-            <p>• Build your academic profile</p>
+            <div className="mt-7 space-y-3 text-sm leading-6 text-gray-300">
+              <p>• Ask questions anytime</p>
+              <p>• Share answers with others</p>
+              <p>• Build your academic profile</p>
+            </div>
           </div>
-        </div>
+        </section>
 
-        {/* RIGHT */}
-        <div style={styles.right}>
-          {children}
-        </div>
-
+        {/* RIGHT / FORM */}
+        <section className="flex w-full min-w-0 items-center justify-center p-4 sm:p-8 lg:flex-1 lg:p-12">
+          <div className="w-full max-w-md">
+            {children}
+          </div>
+        </section>
       </div>
-    </div>
+    </main>
   );
 }
-
-const styles: Record<string, React.CSSProperties> = {
-  wrapper: {
-    minHeight: "100vh",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#f5f5f5",
-    padding: "20px",
-  },
-
-  card: {
-    width: "100%",
-    maxWidth: "1000px",
-    backgroundColor: "#fff",
-    borderRadius: "12px",
-    display: "flex",
-    overflow: "hidden",
-    boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
-  },
-
-  left: {
-    flex: 1,
-    backgroundColor: "#111827",
-    color: "white",
-    padding: "40px",
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "center",
-  },
-
-  right: {
-    flex: 1,
-    padding: "40px",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
-  title: {
-    fontSize: "24px",
-    fontWeight: "600",
-    marginBottom: "10px",
-  },
-
-  subtitle: {
-    fontSize: "14px",
-    opacity: 0.8,
-    marginBottom: "20px",
-  },
-
-  list: {
-    fontSize: "14px",
-    lineHeight: "1.8",
-    opacity: 0.85,
-  },
-};

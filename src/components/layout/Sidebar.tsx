@@ -20,9 +20,8 @@ const items = [
 
 export default function Sidebar() {
   return (
-    <aside className="sticky top-[50px] h-[calc(100vh-50px)] w-[164px] border-r border-gray-200 bg-white overflow-y-auto">
+    <aside className="sticky top-[50px] h-[calc(100vh-50px)] w-[164px] shrink-0 overflow-y-auto border-r border-gray-200 bg-white">
       <nav className="py-4">
-
         {items.map((item) => {
           const Icon = item.icon;
 
@@ -30,48 +29,49 @@ export default function Sidebar() {
             <Link
               key={item.name}
               href={item.href}
-              className={`flex items-center gap-3 px-4 py-2 text-[13px] transition
-                ${
-                  item.active
-                    ? "bg-orange-50 border-r-[3px] border-orange-500 font-semibold text-black"
-                    : "text-gray-700 hover:bg-gray-100"
-                }`}
+              className={`flex items-center gap-3 px-4 py-2 text-[13px] transition ${
+                item.active
+                  ? "border-r-[3px] border-orange-500 bg-orange-50 font-semibold text-black"
+                  : "text-gray-700 hover:bg-gray-100"
+              }`}
             >
               <Icon size={17} />
-              {item.name}
+              <span>{item.name}</span>
             </Link>
           );
         })}
 
         <div className="mt-6 px-4">
-          <p className="text-[11px] uppercase text-gray-500 mb-2">Labs</p>
+          <p className="mb-2 text-[11px] uppercase text-gray-500">
+            Labs
+          </p>
 
           <Link
             href="#"
-            className="flex items-center gap-3 py-2 text-[13px] text-gray-700 hover:bg-gray-100 rounded px-2"
+            className="flex items-center gap-3 rounded px-2 py-2 text-[13px] text-gray-700 hover:bg-gray-100"
           >
             <FlaskConical size={16} />
-            Discussions
+            <span>Discussions</span>
           </Link>
         </div>
 
         <div className="mt-8 px-4">
-          <p className="text-[11px] uppercase text-gray-500 mb-2">
+          <p className="mb-2 text-[11px] uppercase text-gray-500">
             Collectives
           </p>
 
-          <button className="text-[13px] text-blue-600 hover:underline">
+          <button className="text-left text-[13px] text-blue-600 hover:underline">
             Explore all Collectives
           </button>
         </div>
 
         <div className="mt-8 px-4">
-          <p className="text-[11px] uppercase text-gray-500 mb-2">
+          <p className="mb-2 text-[11px] uppercase text-gray-500">
             Teams
           </p>
 
           <div className="rounded-lg border bg-gray-50 p-3">
-            <p className="text-xs text-gray-600">
+            <p className="text-xs leading-5 text-gray-600">
               Ask questions, find answers and collaborate.
             </p>
 
@@ -80,7 +80,6 @@ export default function Sidebar() {
             </button>
           </div>
         </div>
-
       </nav>
     </aside>
   );

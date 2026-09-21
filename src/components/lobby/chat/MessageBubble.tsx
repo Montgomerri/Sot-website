@@ -13,7 +13,6 @@ import {
 import { useState } from "react";
 import { LobbyMessage } from "@/types/lobby";
 
-
 interface Props {
   id: string;
   userId: string;
@@ -25,7 +24,7 @@ interface Props {
 
   replyTo?: LobbyMessage["reply_to"] | null;
 
-onReply?: (message: LobbyMessage) => void;
+  onReply?: (message: LobbyMessage) => void;
 
   onJumpToMessage?: (messageId: string) => void;
 
@@ -74,16 +73,23 @@ export default function MessageBubble({
   async function handleCopy() {
     if (!message) return;
 
-    await navigator.clipboard.writeText(
-      message
-    );
+    try {
+      await navigator.clipboard.writeText(
+        message
+      );
 
-    setCopied(true);
-    setMenuOpen(false);
+      setCopied(true);
+      setMenuOpen(false);
 
-    setTimeout(() => {
-      setCopied(false);
-    }, 1500);
+      setTimeout(() => {
+        setCopied(false);
+      }, 1500);
+    } catch (error) {
+      console.error(
+        "Failed to copy message:",
+        error
+      );
+    }
   }
 
   function startEditing() {
@@ -156,16 +162,22 @@ export default function MessageBubble({
   }
 
   function handleReply() {
-  setMenuOpen(false);
+    setMenuOpen(false);
 
-  onReply?.({
-    id,
-    user_id: userId,
-    content: message,
-    created_at: "",
-    image_url: imageUrl ?? null,
-  });
-}
+    onReply?.({
+      id,
+      user_id: userId,
+      content: message,
+      created_at: "",
+      image_url: imageUrl ?? null,
+      reply_to_id: null,
+      profiles: {
+        full_name: name,
+        avatar_url: null,
+      },
+      reply_to: null,
+    });
+  }
 
   function handleJumpToReply() {
     if (!replyTo) return;
@@ -179,23 +191,28 @@ export default function MessageBubble({
     <div
       id={`message-${id}`}
       className="
-        group
-        flex
-        gap-4
-        px-6
-        py-4
-        transition
-        hover:bg-blue-50/50
-      "
+  group
+  flex
+  gap-3
+  px-3
+  py-3
+  transition
+  hover:bg-blue-50/50
+  sm:gap-4
+  sm:px-6
+  sm:py-4
+"
     >
       {/* Avatar */}
 
       <div
         className="
-          flex
-          h-11
-          w-11
-          shrink-0
+  flex
+  h-9
+  w-9
+  shrink-0
+  sm:h-11
+  sm:w-11
           items-center
           justify-center
           rounded-full
@@ -218,12 +235,15 @@ export default function MessageBubble({
         <div
           className="
             flex
+            min-w-0
             items-center
             gap-3
           "
         >
           <h4
             className="
+              min-w-0
+              truncate
               font-semibold
               text-gray-900
             "
@@ -233,6 +253,7 @@ export default function MessageBubble({
 
           <span
             className="
+              shrink-0
               text-xs
               text-gray-400
             "
@@ -247,6 +268,7 @@ export default function MessageBubble({
               relative
               ml-auto
               flex
+              shrink-0
               items-center
             "
           >
@@ -271,7 +293,9 @@ export default function MessageBubble({
                 hover:bg-gray-100
                 hover:text-gray-700
                 group-hover:opacity-100
+                focus:opacity-100
               "
+              aria-label="Message actions"
             >
               <MoreHorizontal
                 size={18}
@@ -446,6 +470,7 @@ export default function MessageBubble({
           >
             <div
               className="
+                truncate
                 text-xs
                 font-semibold
                 text-blue-600
@@ -460,6 +485,7 @@ export default function MessageBubble({
               className="
                 mt-0.5
                 line-clamp-2
+                break-words
                 text-xs
                 text-gray-500
               "
@@ -576,6 +602,8 @@ export default function MessageBubble({
               <p
                 className="
                   mt-1
+                  whitespace-pre-wrap
+                  break-words
                   text-sm
                   leading-6
                   text-gray-600

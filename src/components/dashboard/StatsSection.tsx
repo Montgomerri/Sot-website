@@ -1,37 +1,35 @@
 export default function StatsSection() {
   return (
-    <div className="grid grid-cols-3 gap-4 mt-6">
-
-      <div className="border rounded-xl p-5 bg-white">
+    <div className="mt-4 grid grid-cols-1 gap-3 sm:mt-6 sm:grid-cols-3 sm:gap-4">
+      <div className="rounded-xl border bg-white p-4 sm:p-5">
         <p className="text-sm text-gray-500">
           Reputation
         </p>
 
-        <h2 className="text-3xl font-bold mt-3">
+        <h2 className="mt-2 text-2xl font-bold sm:mt-3 sm:text-3xl">
           1
         </h2>
       </div>
 
-      <div className="border rounded-xl p-5 bg-white">
+      <div className="rounded-xl border bg-white p-4 sm:p-5">
         <p className="text-sm text-gray-500">
           Badge Progress
         </p>
 
-        <h2 className="text-3xl font-bold mt-3">
+        <h2 className="mt-2 text-2xl font-bold sm:mt-3 sm:text-3xl">
           0
         </h2>
       </div>
 
-      <div className="border rounded-xl p-5 bg-white">
+      <div className="rounded-xl border bg-white p-4 sm:p-5">
         <p className="text-sm text-gray-500">
           Watched Tags
         </p>
 
-        <h2 className="text-3xl font-bold mt-3">
+        <h2 className="mt-2 text-2xl font-bold sm:mt-3 sm:text-3xl">
           0
         </h2>
       </div>
-
     </div>
   );
 }

@@ -17,18 +17,25 @@ export default function MainLayout({
   user,
 }: Props) {
   return (
-    <>
+    <div className="min-h-screen bg-white">
       <Navbar user={user} />
 
-      <div className="mx-auto flex max-w-[1600px]">
-        <Sidebar />
+      <div className="mx-auto flex w-full max-w-[1600px]">
+        {/* Desktop sidebar */}
+        <div className="hidden md:block">
+          <Sidebar />
+        </div>
 
-        <main className="min-h-screen flex-1 border-r border-gray-200 bg-white">
+        {/* Main content */}
+        <main className="min-h-[calc(100vh-50px)] min-w-0 flex-1 bg-white">
           {children}
         </main>
 
-        <RightSidebar />
+        {/* Desktop right sidebar */}
+        <div className="hidden xl:block">
+          <RightSidebar />
+        </div>
       </div>
-    </>
+    </div>
   );
 }
