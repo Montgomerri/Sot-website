@@ -28,6 +28,44 @@ export default function useLobby() {
 
     let cancelled = false;
 
+    // -----------------------------------------
+    // AUTH STATE / REALTIME JWT SYNC
+    // -----------------------------------------
+
+    const {
+      data: { subscription: authSubscription },
+    } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        console.log(
+          "Lobby auth event:",
+          event
+        );
+
+        if (cancelled) return;
+
+        if (session?.user) {
+          setCurrentUserId(session.user.id);
+        } else {
+          setCurrentUserId(null);
+        }
+
+        /*
+         * IMPORTANT:
+         *
+         * Supabase can refresh the access token while
+         * the lobby is open.
+         *
+         * Whenever that happens, give Realtime the
+         * fresh token instead of keeping the old one.
+         */
+        if (session?.access_token) {
+          supabase.realtime.setAuth(
+            session.access_token
+          );
+        }
+      }
+    );
+
     async function setupRealtime() {
       // -----------------------------------------
       // CURRENT USER
@@ -54,14 +92,18 @@ export default function useLobby() {
       if (cancelled) return;
 
       if (!session) {
-        console.error("No authenticated session found.");
+        console.error(
+          "No authenticated session found."
+        );
         return;
       }
 
-      // -----------------------------------------
-      // REALTIME AUTH
-      // -----------------------------------------
-
+      /*
+       * Set the CURRENT token.
+       *
+       * The auth listener above will keep this
+       * synchronized when Supabase refreshes it.
+       */
       supabase.realtime.setAuth(
         session.access_token
       );
@@ -80,9 +122,15 @@ export default function useLobby() {
 
         try {
           /*
-           * Wait briefly for the INSERT to be
-           * fully visible to the normal Supabase
-           * query before hydrating it.
+           * KEEP THIS DELAY.
+           *
+           * The database INSERT can reach Realtime
+           * slightly before the normal Supabase query
+           * can see the newly-created row.
+           *
+           * Your original implementation used this
+           * successfully, so we are not removing it
+           * while fixing JWT authentication.
            */
           await new Promise<void>((resolve) =>
             setTimeout(resolve, 150)
@@ -107,7 +155,10 @@ export default function useLobby() {
                 completeMessage.id
             );
 
-            // Already exists.
+            // -------------------------------------
+            // ALREADY EXISTS
+            // -------------------------------------
+
             if (index !== -1) {
               const updated = [...current];
 
@@ -117,7 +168,10 @@ export default function useLobby() {
               return updated;
             }
 
-            // New message.
+            // -------------------------------------
+            // NEW MESSAGE
+            // -------------------------------------
+
             return [
               ...current,
               completeMessage,
@@ -274,16 +328,12 @@ export default function useLobby() {
 
       if (cancelled) return;
 
-      /*
-       * Replace the current state with the
-       * authoritative database state.
-       *
-       * Because realtime is already subscribed,
-       * new messages created after this point
-       * will continue arriving through realtime.
-       */
       setMessages(data);
     }
+
+    // -----------------------------------------
+    // START
+    // -----------------------------------------
 
     setupRealtime();
 
@@ -293,6 +343,8 @@ export default function useLobby() {
 
     return () => {
       cancelled = true;
+
+      authSubscription.unsubscribe();
 
       if (channel) {
         supabase.removeChannel(channel);

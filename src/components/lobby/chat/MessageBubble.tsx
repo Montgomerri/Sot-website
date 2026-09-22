@@ -12,7 +12,7 @@ import {
 
 import { useState } from "react";
 import { LobbyMessage } from "@/types/lobby";
-
+import ReactionBar from "./ReactionBar";
 interface Props {
   id: string;
   userId: string;
@@ -596,20 +596,20 @@ export default function MessageBubble({
               </button>
             </div>
           </div>
-        ) : (
+                ) : (
           <>
             {/* Text */}
 
             {message && (
               <p
-  className="
-    mt-1
-    break-words
-    text-sm
-    leading-6
-    text-gray-600
-  "
->
+                className="
+                  mt-1
+                  break-words
+                  text-sm
+                  leading-6
+                  text-gray-600
+                "
+              >
                 {message}
               </p>
             )}
@@ -632,6 +632,13 @@ export default function MessageBubble({
                 />
               </div>
             )}
+
+            {/* Reactions */}
+
+            <ReactionBar
+              messageId={id}
+              currentUserId={currentUserId}
+            />
           </>
         )}
       </div>
