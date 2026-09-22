@@ -189,38 +189,40 @@ export default function MessageBubble({
 
   return (
     <div
-      id={`message-${id}`}
-      className="
-  group
-  flex
-  gap-3
-  px-3
-  py-3
-  transition
-  hover:bg-blue-50/50
-  sm:gap-4
-  sm:px-6
-  sm:py-4
-"
-    >
+  id={`message-${id}`}
+  className="
+    group
+    flex
+    min-w-0
+    gap-3
+    px-3
+    py-3
+    transition
+    hover:bg-blue-50/50
+    sm:gap-4
+    sm:px-6
+    sm:py-4
+  "
+>
       {/* Avatar */}
 
       <div
-        className="
-  flex
-  h-9
-  w-9
-  shrink-0
-  sm:h-11
-  sm:w-11
-          items-center
-          justify-center
-          rounded-full
-          bg-blue-500
-          font-semibold
-          text-white
-        "
-      >
+  className="
+    flex
+    h-9
+    w-9
+    shrink-0
+    items-center
+    justify-center
+    rounded-full
+    bg-blue-500
+    text-sm
+    font-semibold
+    text-white
+    sm:h-11
+    sm:w-11
+  "
+>
         {name
           .charAt(0)
           .toUpperCase()}
@@ -600,15 +602,14 @@ export default function MessageBubble({
 
             {message && (
               <p
-                className="
-                  mt-1
-                  whitespace-pre-wrap
-                  break-words
-                  text-sm
-                  leading-6
-                  text-gray-600
-                "
-              >
+  className="
+    mt-1
+    break-words
+    text-sm
+    leading-6
+    text-gray-600
+  "
+>
                 {message}
               </p>
             )}

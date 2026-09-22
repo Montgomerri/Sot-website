@@ -67,7 +67,17 @@ export default function ChatArea({
   }
 
   return (
-    <main className="flex min-w-0 flex-1 flex-col bg-white">
+    <main
+      className="
+        flex
+        min-w-0
+        min-h-0
+        flex-1
+        flex-col
+        overflow-hidden
+        bg-white
+      "
+    >
       <ChatHeader
         onOpenChannels={onOpenChannels}
         onOpenMembers={onOpenMembers}

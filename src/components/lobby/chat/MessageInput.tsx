@@ -168,12 +168,17 @@ export default function MessageInput({
 
   return (
     <div
-      className="
-        border-t
-        bg-white
-        p-4
-      "
-    >
+  className="
+    relative
+    z-30
+    shrink-0
+    border-t
+    border-gray-200
+    bg-white
+    p-3
+    sm:p-4
+  "
+>
       <input
         ref={fileInputRef}
         type="file"
@@ -389,12 +394,14 @@ export default function MessageInput({
           }
           disabled={uploading}
           className="
-            flex-1
-            bg-transparent
-            text-sm
-            outline-none
-            disabled:opacity-50
-          "
+  min-w-0
+  flex-1
+  bg-transparent
+  text-base
+  outline-none
+  disabled:opacity-50
+  sm:text-sm
+"
         />
 
         <button

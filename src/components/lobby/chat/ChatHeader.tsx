@@ -17,8 +17,11 @@ export default function ChatHeader({
   return (
     <header
       className="
+        relative
+        z-30
         flex
         h-16
+        min-h-16
         shrink-0
         items-center
         border-b
@@ -28,7 +31,7 @@ export default function ChatHeader({
         sm:px-6
       "
     >
-      {/* Mobile channels button */}
+      {/* Mobile channel button */}
 
       <button
         type="button"
@@ -39,6 +42,7 @@ export default function ChatHeader({
           flex
           h-9
           w-9
+          shrink-0
           items-center
           justify-center
           rounded-lg
@@ -79,7 +83,7 @@ export default function ChatHeader({
         </p>
       </div>
 
-      {/* Mobile members button */}
+      {/* Mobile member button */}
 
       <button
         type="button"

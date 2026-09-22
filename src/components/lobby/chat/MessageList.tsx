@@ -107,6 +107,7 @@ export default function MessageList({
       if (isAtBottom) {
         bottomRef.current?.scrollIntoView({
           behavior: "smooth",
+          block: "end",
         });
       } else {
         setShowNewMessages(true);
@@ -122,6 +123,7 @@ export default function MessageList({
       requestAnimationFrame(() => {
         bottomRef.current?.scrollIntoView({
           behavior: "auto",
+          block: "end",
         });
       });
     }
@@ -130,44 +132,21 @@ export default function MessageList({
   function scrollToBottom() {
     bottomRef.current?.scrollIntoView({
       behavior: "smooth",
+      block: "end",
     });
 
     setShowNewMessages(false);
     setIsAtBottom(true);
   }
 
-  function jumpToMessage(
-    messageId: string
-  ) {
-    const element =
-      document.getElementById(
-        `message-${messageId}`
-      );
-
-    if (!element) return;
-
-    element.scrollIntoView({
-      behavior: "smooth",
-      block: "center",
-    });
-
-    element.classList.add(
-      "bg-blue-50"
-    );
-
-    window.setTimeout(() => {
-      element.classList.remove(
-        "bg-blue-50"
-      );
-    }, 1500);
-  }
-
   if (messages.length === 0) {
     return (
       <div
         className="
-          flex
+          min-h-0
           flex-1
+          overflow-hidden
+          flex
           items-center
           justify-center
           text-gray-400
@@ -179,67 +158,70 @@ export default function MessageList({
   }
 
   return (
-    <div className="relative min-h-0 flex-1">
+    <div
+      className="
+        relative
+        min-h-0
+        min-w-0
+        flex-1
+        overflow-hidden
+      "
+    >
       <div
         ref={containerRef}
         className="
-  h-full
-  min-w-0
-  overflow-x-hidden
-  overflow-y-auto
-  py-3
-  scroll-smooth
-  sm:py-4
-"
+          h-full
+          min-w-0
+          overflow-x-hidden
+          overflow-y-auto
+          overscroll-contain
+          py-3
+          scroll-smooth
+          sm:py-4
+        "
+        style={{
+          WebkitOverflowScrolling: "touch",
+        }}
       >
         {messages.map((message) => (
           <div
             key={message.id}
             id={`message-${message.id}`}
-            className="transition-colors duration-300"
+            className="min-w-0"
           >
             <MessageBubble
               id={message.id}
               userId={message.user_id}
-              currentUserId={
-                currentUserId
-              }
+              currentUserId={currentUserId}
               name={
                 message.profiles
-                  ?.full_name ??
-                "User"
+                  ?.full_name ?? "User"
               }
-              message={
-                message.content
-              }
-              imageUrl={
-                message.image_url
-              }
+              message={message.content}
+              imageUrl={message.image_url}
               time={new Date(
                 message.created_at
-              ).toLocaleTimeString(
-                [],
-                {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                }
-              )}
+              ).toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
               replyTo={
-                message.reply_to ??
-                null
+                message.reply_to ?? null
               }
               onEdit={onEdit}
               onDelete={onDelete}
               onReply={onReply}
-              onJumpToMessage={
-                jumpToMessage
-              }
             />
           </div>
         ))}
 
-        <div ref={bottomRef} />
+        <div
+          ref={bottomRef}
+          className="h-px"
+        />
       </div>
+
+      {/* New messages */}
 
       {showNewMessages && (
         <button
@@ -249,7 +231,7 @@ export default function MessageList({
             absolute
             bottom-5
             left-1/2
-            z-10
+            z-20
             -translate-x-1/2
             rounded-full
             border
@@ -269,6 +251,8 @@ export default function MessageList({
         </button>
       )}
 
+      {/* Scroll-to-bottom */}
+
       {!isAtBottom &&
         !showNewMessages && (
           <button
@@ -278,8 +262,8 @@ export default function MessageList({
             className="
               absolute
               bottom-5
-              right-5
-              z-10
+              right-4
+              z-20
               flex
               h-10
               w-10

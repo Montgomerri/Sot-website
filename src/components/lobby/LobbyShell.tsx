@@ -26,18 +26,26 @@ export default function LobbyShell() {
   }
 
   return (
-    <div className="relative flex h-screen w-full overflow-hidden bg-white">
-      {/* =====================================================
-          DESKTOP CHANNEL SIDEBAR
-          ===================================================== */}
+    <div
+      className="
+        fixed
+        inset-0
+        flex
+        w-full
+        overflow-hidden
+        bg-white
+      "
+      style={{
+        height: "100dvh",
+      }}
+    >
+      {/* Desktop channel sidebar */}
 
       <div className="hidden shrink-0 md:block">
         <ChannelSidebar />
       </div>
 
-      {/* =====================================================
-          MAIN CHAT
-          ===================================================== */}
+      {/* Main chat */}
 
       <ChatArea
         messages={messages}
@@ -53,17 +61,13 @@ export default function LobbyShell() {
         }
       />
 
-      {/* =====================================================
-          DESKTOP MEMBER SIDEBAR
-          ===================================================== */}
+      {/* Desktop member sidebar */}
 
       <div className="hidden shrink-0 lg:block">
         <MemberSidebar />
       </div>
 
-      {/* =====================================================
-          MOBILE DRAWER BACKDROP
-          ===================================================== */}
+      {/* Mobile backdrop */}
 
       {mobileSidebar && (
         <button
@@ -81,9 +85,7 @@ export default function LobbyShell() {
         />
       )}
 
-      {/* =====================================================
-          MOBILE CHANNEL DRAWER
-          ===================================================== */}
+      {/* Mobile channel drawer */}
 
       {mobileSidebar === "channels" && (
         <aside
@@ -130,9 +132,7 @@ export default function LobbyShell() {
         </aside>
       )}
 
-      {/* =====================================================
-          MOBILE MEMBER DRAWER
-          ===================================================== */}
+      {/* Mobile member drawer */}
 
       {mobileSidebar === "members" && (
         <aside
