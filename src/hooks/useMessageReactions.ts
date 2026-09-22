@@ -12,9 +12,10 @@ import {
   toggleLobbyReaction,
 } from "@/services/lobby/reactions";
 
-import type { MessageReaction } from "@/types/reaction";
+import { createClient } from "@/lib/supabase/client";
+import { LobbyReaction } from "@/types/lobby";
 
-export interface ReactionSummary {
+interface ReactionSummary {
   emoji: string;
   count: number;
   reactedByCurrentUser: boolean;
@@ -24,29 +25,17 @@ export default function useMessageReactions(
   messageId: string,
   currentUserId: string | null
 ) {
-  const [reactions, setReactions] = useState<MessageReaction[]>([]);
-
+  const [reactions, setReactions] = useState<LobbyReaction[]>([]);
   const [loading, setLoading] = useState(true);
-
-  const [togglingEmoji, setTogglingEmoji] = useState<string | null>(
-    null
-  );
-
-  // -----------------------------------------
-  // LOAD REACTIONS
-  // -----------------------------------------
+  const [togglingEmoji, setTogglingEmoji] =
+    useState<string | null>(null);
 
   const loadReactions = useCallback(async () => {
-    if (!messageId) {
-      setReactions([]);
-      setLoading(false);
-      return;
-    }
-
     try {
       setLoading(true);
 
-      const allReactions = await getLobbyReactions([messageId]);
+      const allReactions =
+        await getLobbyReactions([messageId]);
 
       const messageReactions = allReactions.filter(
         (reaction) => reaction.message_id === messageId
@@ -54,136 +43,154 @@ export default function useMessageReactions(
 
       setReactions(messageReactions);
     } catch (error) {
-  console.error(
-    "Failed to load message reactions:",
-    error
-  );
-
-  if (error && typeof error === "object") {
-    console.error(
-      "Reaction load error details:",
-      {
-        message:
-          "message" in error
-            ? error.message
-            : undefined,
-        details:
-          "details" in error
-            ? error.details
-            : undefined,
-        hint:
-          "hint" in error
-            ? error.hint
-            : undefined,
-        code:
-          "code" in error
-            ? error.code
-            : undefined,
-      }
-    );
-  }
-} finally {
+      console.error(
+        "Failed to load message reactions:",
+        error
+      );
+    } finally {
       setLoading(false);
     }
   }, [messageId]);
 
+  /*
+   * Initial reaction load
+   */
   useEffect(() => {
     loadReactions();
   }, [loadReactions]);
 
-  // -----------------------------------------
-  // TOGGLE REACTION
-  // -----------------------------------------
+  /*
+   * Realtime reaction updates
+   */
+  useEffect(() => {
+    const supabase = createClient();
 
-  const handleToggle = useCallback(
-    async (emoji: string) => {
-      if (!currentUserId || !messageId) {
-        return;
-      }
+    const channel = supabase
+      .channel(`message-reactions-${messageId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "lobby_message_reactions",
+          filter: `message_id=eq.${messageId}`,
+        },
+        (payload) => {
+          const newReaction =
+            payload.new as LobbyReaction;
 
-      try {
-        setTogglingEmoji(emoji);
-
-        await toggleLobbyReaction(
-          messageId,
-          emoji
-        );
-
-        await loadReactions();
-      } catch (error) {
-  console.error(
-    "Failed to toggle reaction:",
-    error
-  );
-
-  if (error && typeof error === "object") {
-    console.error(
-      "Reaction toggle error details:",
-      {
-        message:
-          "message" in error
-            ? error.message
-            : undefined,
-        details:
-          "details" in error
-            ? error.details
-            : undefined,
-        hint:
-          "hint" in error
-            ? error.hint
-            : undefined,
-        code:
-          "code" in error
-            ? error.code
-            : undefined,
-      }
-    );
-  }
-} finally {
-        setTogglingEmoji(null);
-      }
-    },
-    [currentUserId, messageId, loadReactions]
-  );
-
-  // -----------------------------------------
-  // GROUP REACTIONS
-  // -----------------------------------------
-
-  const reactionSummary = useMemo<ReactionSummary[]>(() => {
-    const grouped = new Map<string, MessageReaction[]>();
-
-    for (const reaction of reactions) {
-      const existing =
-        grouped.get(reaction.emoji) ?? [];
-
-      existing.push(reaction);
-
-      grouped.set(
-        reaction.emoji,
-        existing
-      );
-    }
-
-    return Array.from(grouped.entries()).map(
-      ([emoji, emojiReactions]) => ({
-        emoji,
-
-        count: emojiReactions.length,
-
-        reactedByCurrentUser: currentUserId
-          ? emojiReactions.some(
+          setReactions((current) => {
+            const alreadyExists = current.some(
               (reaction) =>
-                reaction.user_id === currentUserId
-            )
-          : false,
-      })
-    );
-  }, [reactions, currentUserId]);
+                reaction.id === newReaction.id
+            );
 
-  // -----------------------------------------
-  // RETURN
-  // -----------------------------------------
+            if (alreadyExists) {
+              return current;
+            }
+
+            return [...current, newReaction];
+          });
+        }
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "DELETE",
+          schema: "public",
+          table: "lobby_message_reactions",
+          filter: `message_id=eq.${messageId}`,
+        },
+        (payload) => {
+          const deletedReaction =
+            payload.old as LobbyReaction;
+
+          setReactions((current) =>
+            current.filter(
+              (reaction) =>
+                reaction.id !== deletedReaction.id
+            )
+          );
+        }
+      )
+      .subscribe((status) => {
+        if (status === "SUBSCRIBED") {
+          console.log(
+            `Reaction realtime connected for message ${messageId}`
+          );
+        }
+      });
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [messageId]);
+
+  /*
+   * Toggle reaction
+   */
+  async function handleToggle(emoji: string) {
+    if (!currentUserId) return;
+
+    try {
+      setTogglingEmoji(emoji);
+
+      await toggleLobbyReaction(
+        messageId,
+        emoji
+      );
+
+      /*
+       * We reload after our own toggle as a safety net.
+       * Realtime also updates the state.
+       */
+      await loadReactions();
+    } catch (error) {
+      console.error(
+        "Failed to toggle reaction:",
+        error
+      );
+    } finally {
+      setTogglingEmoji(null);
+    }
+  }
+
+  /*
+   * Group reactions by emoji
+   */
+  const reactionSummary =
+    useMemo<ReactionSummary[]>(() => {
+      const grouped = new Map<
+        string,
+        LobbyReaction[]
+      >();
+
+      for (const reaction of reactions) {
+        const existing =
+          grouped.get(reaction.emoji) ?? [];
+
+        existing.push(reaction);
+
+        grouped.set(
+          reaction.emoji,
+          existing
+        );
+      }
+
+      return Array.from(grouped.entries()).map(
+        ([emoji, emojiReactions]) => ({
+          emoji,
+          count: emojiReactions.length,
+          reactedByCurrentUser: currentUserId
+            ? emojiReactions.some(
+                (reaction) =>
+                  reaction.user_id ===
+                  currentUserId
+              )
+            : false,
+        })
+      );
+    }, [reactions, currentUserId]);
 
   return {
     reactions,

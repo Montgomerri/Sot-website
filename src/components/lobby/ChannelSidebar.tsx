@@ -27,10 +27,7 @@ const communityItems = [
     name: "Programming",
     icon: Code2,
   },
-  {
-    name: "Final Year Projects",
-    icon: GraduationCap,
-  },
+  
   {
     name: "Random",
     icon: Shuffle,

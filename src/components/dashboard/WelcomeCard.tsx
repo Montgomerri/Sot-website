@@ -70,7 +70,7 @@ export default function WelcomeCard() {
         {/* Ask question */}
         <Link
           href="/questions/ask"
-          className="inline-flex w-full shrink-0 items-center justify-center rounded-md bg-blue-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-blue-700 sm:w-auto"
+          className="inline-flex w-full shrink-0 items-center justify-center  bg-orange-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-blue-700 sm:w-auto"
         >
           Ask Question
         </Link>
