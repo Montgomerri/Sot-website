@@ -55,51 +55,56 @@
     --ring: oklch(0.556 0 0);
   }
 
-  /*
-   * Prevent borders from disappearing on components
-   * that rely on the shadcn border variable.
-   */
-  * {
-    border-color: var(--border);
-  }
+  /* =======================================================
+     GLOBAL BOX MODEL
+     ======================================================= */
 
-  /*
-   * Make sizing predictable throughout the application.
-   */
   *,
   *::before,
   *::after {
     box-sizing: border-box;
   }
 
+  * {
+    border-color: var(--border);
+  }
+
+  /* =======================================================
+     HTML
+     ======================================================= */
+
   html {
     width: 100%;
     min-width: 320px;
     overflow-x: hidden;
     -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
   }
+
+  /* =======================================================
+     BODY
+     ======================================================= */
 
   body {
     width: 100%;
     min-width: 320px;
-    min-height: 100%;
+    min-height: 100vh;
+
     margin: 0;
+    padding: 0;
 
     background: var(--background);
     color: var(--foreground);
 
     overflow-x: hidden;
 
-    /*
-     * Prevent long words, URLs, question titles,
-     * usernames, etc. from forcing horizontal overflow.
-     */
     overflow-wrap: anywhere;
   }
 
-  /*
-   * Images should never exceed their containers.
-   */
+  /* =======================================================
+     MEDIA
+     ======================================================= */
+
   img,
   video,
   canvas,
@@ -112,10 +117,10 @@
     height: auto;
   }
 
-  /*
-   * Form controls should remain usable on mobile.
-   * 16px prevents iOS Safari from zooming inputs.
-   */
+  /* =======================================================
+     FORM CONTROLS
+     ======================================================= */
+
   input,
   textarea,
   select {
@@ -127,10 +132,10 @@
     resize: vertical;
   }
 
-  /*
-   * Long text/content should wrap rather than create
-   * horizontal page scrolling.
-   */
+  /* =======================================================
+     TEXT
+     ======================================================= */
+
   p,
   h1,
   h2,
@@ -141,17 +146,18 @@
     overflow-wrap: anywhere;
   }
 
-  /*
-   * Tables can be locally scrollable instead of
-   * forcing the entire page wider.
-   */
+  /* =======================================================
+     TABLES
+     ======================================================= */
+
   table {
     max-width: 100%;
   }
 
-  /*
-   * Make links and buttons behave predictably.
-   */
+  /* =======================================================
+     INTERACTION
+     ======================================================= */
+
   button,
   a {
     -webkit-tap-highlight-color: transparent;
@@ -163,13 +169,35 @@
 }
 
 /* =========================================================
-   RESPONSIVE UTILITIES
+   LANDING PAGE CONTAINER
    ========================================================= */
 
+/*
+ * IMPORTANT:
+ *
+ * Your landing-page components use:
+ *
+ *   <div className="container">
+ *
+ * So .container must be defined globally.
+ *
+ * Navbar uses the same 90% / 1200px layout.
+ */
+
 @layer utilities {
+  .container {
+    width: 90%;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
   /*
-   * Safe horizontal container.
+   * Existing application container.
+   * Keep this because other parts of the application
+   * may already use .app-container.
    */
+
   .app-container {
     width: 100%;
     max-width: 1280px;
@@ -178,18 +206,19 @@
   }
 
   /*
-   * Prevent flex/grid children from forcing their
-   * parent wider than the viewport.
+   * Prevent flex/grid children from forcing
+   * their parent wider than the viewport.
    */
+
   .min-w-0-responsive {
     min-width: 0;
     max-width: 100%;
   }
 
   /*
-   * Safe horizontal scrolling for things such as
-   * tabs, tag lists, and wide data.
+   * Safe horizontal scrolling.
    */
+
   .scroll-x {
     max-width: 100%;
     overflow-x: auto;
@@ -199,8 +228,9 @@
   }
 
   /*
-   * Better text wrapping for chat/question content.
+   * Safe wrapping for chat/question content.
    */
+
   .break-anywhere {
     overflow-wrap: anywhere;
     word-break: break-word;
@@ -208,17 +238,19 @@
 }
 
 /* =========================================================
-   MOBILE FOUNDATION
+   MOBILE
    ========================================================= */
 
 @media (max-width: 639px) {
+  .container {
+    width: calc(100% - 28px);
+    max-width: none;
+  }
+
   .app-container {
     padding-inline: 0.875rem;
   }
 
-  /*
-   * Keep headings from becoming oversized on phones.
-   */
   h1 {
     font-size: clamp(1.5rem, 7vw, 2rem);
     line-height: 1.15;
@@ -236,10 +268,14 @@
 }
 
 /* =========================================================
-   SMALL PHONE
+   SMALL PHONES
    ========================================================= */
 
 @media (max-width: 374px) {
+  .container {
+    width: calc(100% - 24px);
+  }
+
   .app-container {
     padding-inline: 0.75rem;
   }
@@ -249,7 +285,11 @@
    TABLET
    ========================================================= */
 
-@media (min-width: 640px) {
+@media (min-width: 640px) and (max-width: 1023px) {
+  .container {
+    width: calc(100% - 48px);
+  }
+
   .app-container {
     padding-inline: 1.25rem;
   }
@@ -260,13 +300,28 @@
    ========================================================= */
 
 @media (min-width: 1024px) {
+  .container {
+    width: 90%;
+    max-width: 1200px;
+  }
+
   .app-container {
     padding-inline: 1.5rem;
   }
 }
 
 /* =========================================================
-   ANIMATION
+   VERY LARGE SCREENS
+   ========================================================= */
+
+@media (min-width: 1440px) {
+  .container {
+    max-width: 1200px;
+  }
+}
+
+/* =========================================================
+   REDUCED MOTION
    ========================================================= */
 
 @media (prefers-reduced-motion: reduce) {

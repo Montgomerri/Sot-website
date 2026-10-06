@@ -10,15 +10,28 @@ export default function Categories() {
   ];
 
   return (
-    <section style={{ background: "#f9f9f9", padding: "80px 0", fontFamily: "Poppins, sans-serif" }}>
+    <section
+      style={{
+        background: "#F5F7FA",
+        padding: "80px 0",
+        fontFamily: "Poppins, sans-serif",
+      }}
+    >
       <div className="container">
-
         {/* Header */}
         <div style={{ textAlign: "center", marginBottom: "60px" }}>
-          <p style={{ color: "#000000", fontWeight: 700, fontSize: "14px", marginBottom: "10px" }}>
+          <p
+            style={{
+              color: "#0A66C2",
+              fontWeight: 700,
+              fontSize: "14px",
+              marginBottom: "10px",
+              letterSpacing: "0.5px",
+            }}
+          >
             Get In Touch
           </p>
-          <h2 style={{ fontSize: "36px", fontWeight: 700, color: "#1a1a2e" }}>
+          <h2 style={{ fontSize: "36px", fontWeight: 700, color: "#0A2A43" }}>
             Reach Out
           </h2>
         </div>
@@ -32,14 +45,14 @@ export default function Categories() {
             marginBottom: "50px",
           }}
         >
-          <div style={cardStyle("#2ecc8a")}>
-            <div style={{ fontSize: "28px", marginBottom: "12px" }}></div>
+          <div style={cardStyle("#0A66C2")}>
+            <div style={accentBar("#0A66C2")} />
             <h3 style={titleStyle}>Open Hours</h3>
             <p style={textStyle}>Mon–Sat : 8:30 – 18:00 GMT</p>
           </div>
 
-          <div style={cardStyle("#012E5B")}>
-            <div style={{ fontSize: "28px", marginBottom: "12px" }}></div>
+          <div style={cardStyle("#084F9E")}>
+            <div style={accentBar("#084F9E")} />
             <h3 style={titleStyle}>Phone Number</h3>
             <p style={textStyle}>
               +233-(0) 501620138
@@ -48,20 +61,20 @@ export default function Categories() {
             </p>
           </div>
 
-          <div style={cardStyle("#000000")}>
-            <div style={{ fontSize: "28px", marginBottom: "12px" }}></div>
+          <div style={cardStyle("#0A2A43")}>
+            <div style={accentBar("#0A2A43")} />
             <h3 style={titleStyle}>Our Location</h3>
             <p style={textStyle}>GIMPA School of Technology</p>
           </div>
 
-          <div style={cardStyle("#ffffff")}>
-            <div style={{ fontSize: "28px", marginBottom: "12px" }}></div>
+          <div style={cardStyle("#3EBC84")}>
+            <div style={accentBar("#3EBC84")} />
             <h3 style={titleStyle}>Our Email</h3>
             <a
               href="mailto:csshead@gimpa.edu.gh"
               style={{
                 fontSize: "14px",
-                color: "#2ecc8a",
+                color: "#0A66C2",
                 lineHeight: "1.7",
                 textDecoration: "none",
                 fontWeight: 600,
@@ -72,24 +85,68 @@ export default function Categories() {
           </div>
         </div>
 
-        {/* Quick Links */}
+        {/* Quick Links — gradient panel */}
         <div
           style={{
-            background: "#1a1a2e",
-            borderRadius: "20px",
-            padding: "40px",
+            position: "relative",
+            background:
+              "linear-gradient(135deg, #0A2A43 0%, #084F9E 60%, #0A66C2 100%)",
+            borderRadius: "24px",
+            padding: "48px",
             display: "flex",
             flexWrap: "wrap",
             alignItems: "center",
             justifyContent: "space-between",
-            gap: "24px",
+            gap: "28px",
+            overflow: "hidden",
           }}
         >
-          <h3 style={{ fontSize: "20px", fontWeight: 700, color: "white", margin: 0 }}>
-            Quick Links
-          </h3>
+          {/* Soft radial highlight, top-right */}
+          <div
+            aria-hidden
+            style={{
+              position: "absolute",
+              top: "-60px",
+              right: "-60px",
+              width: "240px",
+              height: "240px",
+              borderRadius: "50%",
+              background:
+                "radial-gradient(circle, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0) 70%)",
+              pointerEvents: "none",
+            }}
+          />
 
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "12px" }}>
+          <div style={{ position: "relative" }}>
+            <h3
+              style={{
+                fontSize: "22px",
+                fontWeight: 700,
+                color: "white",
+                margin: 0,
+              }}
+            >
+              Quick Links
+            </h3>
+            <div
+              style={{
+                width: "36px",
+                height: "3px",
+                background: "#3EBC84",
+                borderRadius: "2px",
+                marginTop: "10px",
+              }}
+            />
+          </div>
+
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: "12px",
+              position: "relative",
+            }}
+          >
             {quickLinks.map((link) => (
               <a
                 key={link.label}
@@ -97,25 +154,32 @@ export default function Categories() {
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{
-                  background: "#ffffff15",
+                  background: "rgba(255,255,255,0.08)",
                   color: "white",
-                  padding: "8px 20px",
+                  padding: "10px 22px",
                   borderRadius: "50px",
                   fontSize: "13px",
                   fontWeight: 500,
                   textDecoration: "none",
-                  border: "1px solid #ffffff20",
-                  transition: "background 0.3s",
+                  border: "1px solid rgba(255,255,255,0.15)",
+                  transition: "background 0.25s, transform 0.2s, border-color 0.25s",
                 }}
-                onMouseEnter={(e) => (e.currentTarget.style.background = "#2ecc8a")}
-                onMouseLeave={(e) => (e.currentTarget.style.background = "#ffffff15")}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = "#0A66C2";
+                  e.currentTarget.style.borderColor = "#0A66C2";
+                  e.currentTarget.style.transform = "translateY(-2px)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = "rgba(255,255,255,0.08)";
+                  e.currentTarget.style.borderColor = "rgba(255,255,255,0.15)";
+                  e.currentTarget.style.transform = "translateY(0)";
+                }}
               >
                 {link.label}
               </a>
             ))}
           </div>
         </div>
-
       </div>
     </section>
   );
@@ -126,18 +190,27 @@ const cardStyle = (borderColor: string): React.CSSProperties => ({
   borderRadius: "16px",
   padding: "28px",
   boxShadow: "0 4px 20px rgba(0,0,0,0.05)",
-  borderTop: `4px solid ${borderColor}`,
+  transition: "transform 0.25s ease, box-shadow 0.25s ease",
+});
+
+const accentBar = (color: string): React.CSSProperties => ({
+  width: "32px",
+  height: "3px",
+  background: color,
+  borderRadius: "2px",
+  marginBottom: "20px",
 });
 
 const titleStyle: React.CSSProperties = {
   fontSize: "15px",
   fontWeight: 700,
-  color: "#1a1a2e",
+  color: "#0A2A43",
   marginBottom: "10px",
 };
 
 const textStyle: React.CSSProperties = {
   fontSize: "14px",
-  color: "#666",
+  color: "#5B6B7C",
   lineHeight: "1.7",
+  margin: 0,
 };

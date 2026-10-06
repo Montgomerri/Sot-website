@@ -26,8 +26,9 @@ export default function Navbar() {
           position: sticky;
           top: 0;
           z-index: 1000;
-          background: #fff5f0;
+          background: #ffffff;
           width: 100%;
+          border-bottom: 1px solid #E1EAF3;
         }
 
         .navbar-inner {
@@ -57,7 +58,7 @@ export default function Navbar() {
           font-family: "Poppins", "Segoe UI", sans-serif;
           font-size: 22px;
           font-weight: 800;
-          color: #1a1a2e;
+          color: #0A2A43;
           letter-spacing: -0.5px;
           text-transform: uppercase;
         }
@@ -66,7 +67,7 @@ export default function Navbar() {
           display: inline-block;
           width: 8px;
           height: 8px;
-          background: #f4c430;
+          background: #0A66C2;
           border-radius: 50%;
           margin-left: 1px;
           margin-bottom: 12px;
@@ -86,7 +87,7 @@ export default function Navbar() {
           font-family: "Poppins", "Segoe UI", sans-serif;
           font-size: 14px;
           font-weight: 500;
-          color: #444;
+          color: #3A4A5A;
           padding: 6px 14px;
           border-radius: 6px;
           transition: color 0.2s ease, background 0.2s ease;
@@ -94,17 +95,17 @@ export default function Navbar() {
         }
 
         .navbar-links li a:hover {
-          color: #1a1a2e;
-          background: #f5f5f5;
+          color: #0A2A43;
+          background: #E8F1FA;
         }
 
         .navbar-links li a.active {
-          color: #1a1a2e;
+          color: #0A66C2;
           font-weight: 700;
         }
 
         .navbar-cta {
-          background: #2ecc8a;
+          background: #159d15;
           color: #ffffff;
           font-family: "Poppins", "Segoe UI", sans-serif;
           font-size: 14px;
@@ -119,7 +120,7 @@ export default function Navbar() {
         }
 
         .navbar-cta:hover {
-          background: #27b87a;
+          background: #084F9E;
           transform: translateY(-1px);
         }
 
@@ -137,7 +138,7 @@ export default function Navbar() {
           display: block;
           width: 24px;
           height: 2px;
-          background: #1a1a2e;
+          background: #0A2A43;
           border-radius: 2px;
           transition: all 0.3s ease;
         }
@@ -145,7 +146,7 @@ export default function Navbar() {
         .navbar-mobile {
           display: none;
           background: #ffffff;
-          border-top: 1px solid #f0f0f0;
+          border-top: 1px solid #E1EAF3;
           padding: 16px 5%;
         }
 
@@ -160,19 +161,19 @@ export default function Navbar() {
           font-family: "Poppins", "Segoe UI", sans-serif;
           font-size: 15px;
           font-weight: 500;
-          color: #444;
+          color: #3A4A5A;
           padding: 10px 14px;
           border-radius: 8px;
           transition: background 0.2s;
         }
 
         .navbar-mobile a:hover {
-          background: #f5f5f5;
-          color: #1a1a2e;
+          background: #E8F1FA;
+          color: #0A2A43;
         }
 
         .navbar-mobile .navbar-cta-mobile {
-          background: #2ecc8a;
+          background: #0A66C2;
           color: white;
           text-align: center;
           margin-top: 8px;

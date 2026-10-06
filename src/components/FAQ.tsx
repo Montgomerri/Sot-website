@@ -16,7 +16,7 @@ export default function FAQ() {
             target="_blank"
             rel="noopener noreferrer"
             style={{
-              color: "#000000",
+              color: "#0A66C2",
               fontWeight: 600,
               textDecoration: "none",
             }}
@@ -44,7 +44,7 @@ export default function FAQ() {
           <a
             href="mailto:admissions@gimpa.edu.gh"
             style={{
-              color: "#000000",
+              color: "#0A66C2",
               fontWeight: 600,
               textDecoration: "none",
             }}
@@ -79,14 +79,14 @@ export default function FAQ() {
           <br />
           <a
             href="tel:+233501620138"
-            style={{ color: "#000000", fontWeight: 600, textDecoration: "none" }}
+            style={{ color: "#0A66C2", fontWeight: 600, textDecoration: "none" }}
           >
             +233 (0)501 620138
           </a>
           <br />
           <a
             href="tel:+233302908076"
-            style={{ color: "#000000", fontWeight: 600, textDecoration: "none" }}
+            style={{ color: "#0A66C2", fontWeight: 600, textDecoration: "none" }}
           >
             +233 (0)302 908076
           </a>
@@ -96,7 +96,7 @@ export default function FAQ() {
           <a
             href="mailto:csshead@gimpa.edu.gh"
             style={{
-              color: "#000000",
+              color: "#0A66C2",
               fontWeight: 600,
               textDecoration: "none",
             }}
@@ -128,7 +128,7 @@ export default function FAQ() {
   return (
     <section
       style={{
-        background: "#f9f9f9",
+        background: "#F5F7FA",
         padding: "80px 0",
         fontFamily: "Poppins, sans-serif",
       }}
@@ -146,7 +146,7 @@ export default function FAQ() {
         <div style={{ flex: "1", minWidth: "260px" }}>
           <p
             style={{
-              color: "#ff6d5a",
+              color: "#0A66C2",
               fontWeight: 700,
               fontSize: "14px",
               marginBottom: "12px",
@@ -158,7 +158,7 @@ export default function FAQ() {
             style={{
               fontSize: "32px",
               fontWeight: 700,
-              color: "#1a1a2e",
+              color: "#0A2A43",
               lineHeight: "1.3",
             }}
           >
@@ -168,7 +168,7 @@ export default function FAQ() {
           </h2>
           <p
             style={{
-              color: "#888",
+              color: "#5B6B7C",
               marginTop: "16px",
               fontSize: "14px",
               lineHeight: "1.8",
@@ -208,7 +208,7 @@ export default function FAQ() {
                   fontFamily: "Poppins, sans-serif",
                   fontSize: "14px",
                   fontWeight: 600,
-                  color: "#1a1a2e",
+                  color: "#0A2A43",
                   textAlign: "left",
                 }}
               >
@@ -216,7 +216,7 @@ export default function FAQ() {
                 <span
                   style={{
                     fontSize: "20px",
-                    color: openIndex === index ? "#ff6d5a" : "#888",
+                    color: openIndex === index ? "#0A66C2" : "#5B6B7C",
                     transition: "transform 0.3s ease",
                     transform:
                       openIndex === index ? "rotate(45deg)" : "rotate(0deg)",
@@ -233,7 +233,7 @@ export default function FAQ() {
                   style={{
                     padding: "0 20px 18px",
                     fontSize: "14px",
-                    color: "#666",
+                    color: "#5B6B7C",
                     lineHeight: "1.8",
                   }}
                 >

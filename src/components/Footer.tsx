@@ -1,12 +1,13 @@
 // src/components/Footer.tsx
 "use client";
+
 export default function Footer() {
   const companyLinks = ["About Us", "Careers", "Press", "Blog", "Contact Us", "Privacy Policy"];
 
   const linkStyle = {
     display: "block",
     fontSize: "13px",
-    color: "#aaa",
+    color: "#9FB0C2",
     textDecoration: "none",
     marginBottom: "10px",
   };
@@ -27,7 +28,7 @@ export default function Footer() {
   return (
     <footer
       style={{
-        background: "#1a1a2e",
+        background: "#0A2A43",
         color: "white",
         padding: "60px 0 20px",
         fontFamily: "Poppins, sans-serif",
@@ -45,9 +46,9 @@ export default function Footer() {
           {/* Brand */}
           <div>
             <h3 style={{ fontSize: "22px", fontWeight: 800, marginBottom: "16px" }}>
-              Dennis<span style={{ color: "#f4c430" }}>.</span>
+              SOTSS<span style={{ color: "#0A66C2" }}>.</span>
             </h3>
-            <p style={{ fontSize: "13px", color: "#aaa", lineHeight: "1.8" }}>
+            <p style={{ fontSize: "13px", color: "#9FB0C2", lineHeight: "1.8" }}>
               We are passionate about empowering learners worldwide with high-quality, accessible &
               engaging education.
             </p>
@@ -84,7 +85,7 @@ export default function Footer() {
         {/* Bottom Bar */}
         <div
           style={{
-            borderTop: "1px solid #ffffff15",
+            borderTop: "1px solid #ffffff1A",
             paddingTop: "20px",
             display: "flex",
             justifyContent: "space-between",
@@ -93,17 +94,17 @@ export default function Footer() {
             gap: "12px",
           }}
         >
-          <p style={{ fontSize: "12px", color: "#666" }}>
+          <p style={{ fontSize: "12px", color: "#7A8A9A" }}>
             © 2026 . All rights reserved.
           </p>
           <div style={{ display: "flex", gap: "16px" }}>
-            <a href="#" style={{ fontSize: "12px", color: "#666", textDecoration: "none" }}>
+            <a href="#" style={{ fontSize: "12px", color: "#7A8A9A", textDecoration: "none" }}>
               Privacy Policy
             </a>
-            <a href="#" style={{ fontSize: "12px", color: "#666", textDecoration: "none" }}>
+            <a href="#" style={{ fontSize: "12px", color: "#7A8A9A", textDecoration: "none" }}>
               Terms of Service
             </a>
-            <a href="#" style={{ fontSize: "12px", color: "#666", textDecoration: "none" }}>
+            <a href="#" style={{ fontSize: "12px", color: "#7A8A9A", textDecoration: "none" }}>
               Cookie Settings
             </a>
           </div>

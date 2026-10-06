@@ -1,10 +1,17 @@
 // src/components/CTASection.tsx
+"use client";
+
+const NAVY = "#0A2A43";
+const BLUE = "#0A66C2";
+const MUTED = "#5B6B7C";
+const BORDER = "#E1EAF3";
+
 export default function CTASection() {
   return (
     <section
       id="about"
       style={{
-        background: "#fff",
+        background: "#ffffff",
         padding: "100px 0",
         fontFamily: "Poppins, sans-serif",
       }}
@@ -12,34 +19,43 @@ export default function CTASection() {
       <div className="container">
         {/* Header */}
         <div style={{ textAlign: "center", marginBottom: "60px" }}>
+          <p
+            style={{
+              color: BLUE,
+              fontWeight: 700,
+              fontSize: "13px",
+              letterSpacing: "0.5px",
+              marginBottom: "12px",
+            }}
+          >
+            About Us
+          </p>
           <h2
             style={{
-              fontSize: "32px",
+              fontSize: "34px",
               fontWeight: 700,
-              color: "#1a1a2e",
+              color: NAVY,
+              marginBottom: "24px",
             }}
           >
             About Our Departments
           </h2>
           <p
             style={{
-              color: "#888",
-              marginTop: "12px",
+              color: MUTED,
               fontSize: "14px",
-              maxWidth: "600px",
+              lineHeight: "1.8",
+              maxWidth: "720px",
               marginInline: "auto",
-              lineHeight: "1.7",
             }}
           >
-          The Department of Computer Science and Information Systems was established following the merger of the departments of Computer Sciences and Information Systems and Innovation by the Institute’s management in September 2023. The staff strength at the time of the establishment of the department was eleven-seven full-time lecturers.
-
-The department began with some existing academic programmes from the merged departments. These include BSc Computer Science, BSc Information and Communication Technology.
-
-MSc/MPhil Information and Communication Technology, MSc Information Technology and Law, MSc/MPhil Management Information Systems, MSc Applied Mathematics (now MSc Industrial Analytics), MSc Digital Forensics and Cybersecurity, PhD Information Systems, Postgraduate Diploma in Information and Communication Technology, Diploma in Applied Computer Science, and BSc Health Informatics.
-
-Both classrooms and computer laboratories are shared with the Department of Information Systems and Innovation within the School of Technology.
-
-Ghana Institute of Management and Public Administration uses Simio simulation software under a grant from Simio LLC (www.simio.com).
+            The Department of Computer Science and Information Systems was
+            established following the merger of the departments of Computer
+            Sciences and Information Systems and Innovation by the Institute’s
+            management in September 2023. The department offers a wide range of
+            undergraduate, postgraduate, and diploma programmes, and shares its
+            classrooms and computer laboratories with the Department of
+            Information Systems and Innovation within the School of Technology.
           </p>
         </div>
 
@@ -47,165 +63,186 @@ Ghana Institute of Management and Public Administration uses Simio simulation so
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+            gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
             gap: "20px",
           }}
         >
-          {/* Teach Card */}
+          {/* Card 1 */}
           <div
             style={{
-              background: "#fff5f0",
-              borderRadius: "16px",
+              background: "#fff",
+              borderRadius: "14px",
               padding: "28px",
               display: "flex",
               flexDirection: "column",
-              gap: "14px",
-              transition: "0.3s ease",
+              gap: "12px",
+              border: `1px solid ${BORDER}`,
+              borderTop: `4px solid ${BLUE}`,
+              transition: "transform 0.25s ease, box-shadow 0.25s ease",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = "translateY(-4px)";
+              e.currentTarget.style.boxShadow =
+                "0 12px 28px rgba(10,102,194,0.10)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = "translateY(0)";
+              e.currentTarget.style.boxShadow = "none";
             }}
           >
-            <span style={{ fontSize: "30px" }}></span>
-
             <h3
               style={{
-                fontSize: "18px",
+                fontSize: "16px",
                 fontWeight: 700,
-                color: "#1a1a2e",
+                color: NAVY,
+                margin: 0,
               }}
             >
-              SOTSS
+              Economics &amp; Applied Mathematics
             </h3>
-
             <p
               style={{
                 fontSize: "13px",
-                color: "#666",
-                lineHeight: "1.6",
+                color: MUTED,
+                lineHeight: "1.7",
+                margin: 0,
               }}
             >
-              Department of economics And Applied Mathematics
+              Quantitative foundations for computing, analytics, and
+              data-driven decision making.
             </p>
-
             <a
               href="https://gimpa.edu.gh/dept-economics-and-applied-mathematics/"
               style={{
                 marginTop: "auto",
-                background: "#1a1a2e",
-                color: "white",
-                padding: "10px 22px",
-                borderRadius: "40px",
+                paddingTop: "12px",
+                color: BLUE,
                 fontWeight: 600,
                 fontSize: "13px",
                 textDecoration: "none",
                 alignSelf: "flex-start",
-                display: "inline-block",
               }}
             >
-              explore
+              Explore →
             </a>
           </div>
 
-          {/* Learn Card */}
+          {/* Card 2 */}
           <div
             style={{
-              background: "#1a1a2e",
-              borderRadius: "16px",
+              background: "#fff",
+              borderRadius: "14px",
               padding: "28px",
               display: "flex",
               flexDirection: "column",
-              gap: "14px",
+              gap: "12px",
+              border: `1px solid ${BORDER}`,
+              borderTop: `4px solid ${BLUE}`,
+              transition: "transform 0.25s ease, box-shadow 0.25s ease",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = "translateY(-4px)";
+              e.currentTarget.style.boxShadow =
+                "0 12px 28px rgba(10,102,194,0.10)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = "translateY(0)";
+              e.currentTarget.style.boxShadow = "none";
             }}
           >
-            <span style={{ fontSize: "30px" }}></span>
-
             <h3
               style={{
-                fontSize: "18px",
+                fontSize: "16px",
                 fontWeight: 700,
-                color: "white",
+                color: NAVY,
+                margin: 0,
               }}
             >
-              SOTSS
+              Liberal Arts &amp; Hospitality Studies
             </h3>
-
             <p
               style={{
                 fontSize: "13px",
-                color: "#bbb",
-                lineHeight: "1.6",
+                color: MUTED,
+                lineHeight: "1.7",
+                margin: 0,
               }}
             >
-              Department of Liberal Arts & Hospitality Studies
+              Humanities, communication, and hospitality programmes within the
+              School of Technology.
             </p>
-
             <a
               href="https://gimpa.edu.gh/dept-liberal-arts-hospitality-studies/"
               style={{
                 marginTop: "auto",
-                background: "#000000",
-                color: "white",
-                padding: "10px 22px",
-                borderRadius: "40px",
+                paddingTop: "12px",
+                color: BLUE,
                 fontWeight: 600,
                 fontSize: "13px",
                 textDecoration: "none",
                 alignSelf: "flex-start",
-                display: "inline-block",
               }}
             >
-              explore
+              Explore →
             </a>
           </div>
 
-          {/* Explore Programs Card */}
+          {/* Card 3 */}
           <div
             style={{
-              background: "#f4f7ff",
-              borderRadius: "16px",
+              background: "#fff",
+              borderRadius: "14px",
               padding: "28px",
               display: "flex",
               flexDirection: "column",
-              gap: "14px",
+              gap: "12px",
+              border: `1px solid ${BORDER}`,
+              borderTop: `4px solid ${BLUE}`,
+              transition: "transform 0.25s ease, box-shadow 0.25s ease",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = "translateY(-4px)";
+              e.currentTarget.style.boxShadow =
+                "0 12px 28px rgba(10,102,194,0.10)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = "translateY(0)";
+              e.currentTarget.style.boxShadow = "none";
             }}
           >
-            <span style={{ fontSize: "30px" }}></span>
-
             <h3
               style={{
-                fontSize: "18px",
+                fontSize: "16px",
                 fontWeight: 700,
-                color: "#1a1a2e",
+                color: NAVY,
+                margin: 0,
               }}
             >
-            SOTSS
+              Computer Science &amp; Information Systems
             </h3>
-
             <p
               style={{
                 fontSize: "13px",
-                color: "#666",
-                lineHeight: "1.6",
+                color: MUTED,
+                lineHeight: "1.7",
+                margin: 0,
               }}
             >
-              Department of computer Science and Information Systems
+              You are currently viewing this department’s portal programmes,
+              news, and student services.
             </p>
-
-            <a
-             
+            <span
               style={{
                 marginTop: "auto",
-                background: "#000000",
-                color: "white",
-                padding: "10px 22px",
-                borderRadius: "40px",
+                paddingTop: "12px",
+                color: "#9FB0C2",
                 fontWeight: 600,
                 fontSize: "13px",
-                textDecoration: "none",
                 alignSelf: "flex-start",
-                display: "inline-block",
               }}
             >
               Current page
-            </a>
+            </span>
           </div>
         </div>
       </div>

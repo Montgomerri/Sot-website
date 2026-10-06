@@ -358,16 +358,16 @@ export default function useLobby() {
   // -----------------------------------------
 
   async function sendMessage(
-    content: string,
-    imageUrl?: string | null,
-    replyToId?: string | null
-  ) {
-    await sendLobbyMessage(
-      content,
-      imageUrl,
-      replyToId
-    );
-  }
+  content: string,
+  imageUrl?: string | null,
+  replyToId?: string | null
+) {
+  await sendLobbyMessage(
+    content,
+    imageUrl,
+    replyToId
+  );
+}
 
   // -----------------------------------------
   // EDIT MESSAGE

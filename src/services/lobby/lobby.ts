@@ -220,7 +220,7 @@ export async function sendLobbyMessage(
   content: string,
   imageUrl?: string | null,
   replyToId?: string | null
-) {
+): Promise<string> {
   const supabase = createClient();
 
   const {
@@ -233,14 +233,16 @@ export async function sendLobbyMessage(
     );
   }
 
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from("lobby_messages")
     .insert({
       user_id: user.id,
       content,
       image_url: imageUrl ?? null,
       reply_to_id: replyToId ?? null,
-    });
+    })
+    .select("id")
+    .single();
 
   if (error) {
     console.error(
@@ -250,32 +252,8 @@ export async function sendLobbyMessage(
 
     throw error;
   }
-}
 
-/**
- * Update a lobby message.
- */
-export async function updateLobbyMessage(
-  id: string,
-  content: string
-) {
-  const supabase = createClient();
-
-  const { error } = await supabase
-    .from("lobby_messages")
-    .update({
-      content,
-    })
-    .eq("id", id);
-
-  if (error) {
-    console.error(
-      "Failed to update lobby message:",
-      error
-    );
-
-    throw error;
-  }
+  return data.id;
 }
 
 /**
@@ -294,6 +272,32 @@ export async function deleteLobbyMessage(
   if (error) {
     console.error(
       "Failed to delete lobby message:",
+      error
+    );
+
+    throw error;
+  }
+}
+
+/**
+ * Update a lobby message.
+ */
+export async function updateLobbyMessage(
+  id: string,
+  content: string
+): Promise<void> {
+  const supabase = createClient();
+
+  const { error } = await supabase
+    .from("lobby_messages")
+    .update({
+      content,
+    })
+    .eq("id", id);
+
+  if (error) {
+    console.error(
+      "Failed to update lobby message:",
       error
     );
 
