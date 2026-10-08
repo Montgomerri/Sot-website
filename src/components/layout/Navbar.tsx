@@ -88,9 +88,7 @@ export default function Navbar({ user }: Props) {
             Products
           </button>
 
-          <button className="rounded-md px-2 py-1 hover:bg-gray-100">
-            OverflowAI
-          </button>
+          
         </nav>
 
         {/* Search */}

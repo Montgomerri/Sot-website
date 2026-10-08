@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   House,
   CircleHelp,
@@ -11,7 +12,7 @@ import {
 } from "lucide-react";
 
 const items = [
-  { name: "Home", icon: House, href: "/dashboard", active: true },
+  { name: "Home", icon: House, href: "/dashboard" },
   { name: "Questions", icon: CircleHelp, href: "/questions" },
   { name: "Tags", icon: Tags, href: "/tags" },
   { name: "Users", icon: Users, href: "/users" },
@@ -19,19 +20,28 @@ const items = [
 ];
 
 export default function Sidebar() {
+  const pathname = usePathname();
+
+  function isActive(href: string) {
+    if (href === "/dashboard") return pathname === "/dashboard";
+    return pathname === href || pathname.startsWith(`${href}/`);
+  }
+
   return (
     <aside className="sticky top-[50px] h-[calc(100vh-50px)] w-[164px] shrink-0 overflow-y-auto border-r border-gray-200 bg-white">
       <nav className="py-4">
         {items.map((item) => {
           const Icon = item.icon;
+          const active = isActive(item.href);
 
           return (
             <Link
               key={item.name}
               href={item.href}
+              aria-current={active ? "page" : undefined}
               className={`flex items-center gap-3 px-4 py-2 text-[13px] transition ${
-                item.active
-                  ? "border-r-[3px] border-orange-500 bg-orange-50 font-semibold text-black"
+                active
+                  ? "border-r-[3px] border-brand-500 bg-brand-50 font-semibold text-brand-900"
                   : "text-gray-700 hover:bg-gray-100"
               }`}
             >
@@ -60,7 +70,7 @@ export default function Sidebar() {
             Collectives
           </p>
 
-          <button className="text-left text-[13px] text-blue-600 hover:underline">
+          <button className="text-left text-[13px] text-brand-700 hover:underline">
             Explore all Collectives
           </button>
         </div>
@@ -75,7 +85,7 @@ export default function Sidebar() {
               Ask questions, find answers and collaborate.
             </p>
 
-            <button className="mt-3 w-full rounded bg-orange-500 py-2 text-xs text-white hover:bg-orange-600">
+            <button className="mt-3 w-full rounded bg-brand-600 py-2 text-xs text-white hover:bg-brand-700">
               Create free Team
             </button>
           </div>

@@ -39,7 +39,7 @@ export default function NotificationItem({
         ${
           notification.read
             ? "bg-white"
-            : "bg-blue-50"
+            : "bg-brand-50"
         }
       `}
     >
@@ -52,8 +52,8 @@ export default function NotificationItem({
           items-center
           justify-center
           rounded-full
-          bg-blue-100
-          text-blue-600
+          bg-brand-100
+          text-brand-700
         "
       >
         <Bell size={16} />
@@ -74,7 +74,7 @@ export default function NotificationItem({
       </div>
 
       {!notification.read && (
-        <span className="mt-2 h-2 w-2 rounded-full bg-blue-600" />
+        <span className="mt-2 h-2 w-2 rounded-full bg-brand-600" />
       )}
     </Link>
   );

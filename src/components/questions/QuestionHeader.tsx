@@ -22,7 +22,7 @@ export default function QuestionHeader({
   const profile = question.profiles;
 
   return (
-    <div className="rounded-2xl border bg-white p-8">
+    <div className="rounded-2xl border bg-white p-4 sm:p-6 lg:p-8">
 
       <Link
         href="/questions"
@@ -32,8 +32,7 @@ export default function QuestionHeader({
         Back to Questions
       </Link>
 
-      <div className="mt-8 flex gap-8">
-
+      <div className="mt-6 flex flex-col gap-6 sm:mt-8 lg:flex-row lg:gap-8">
         {/* Vote Sidebar */}
 
         <div className="flex-shrink-0">
@@ -44,7 +43,7 @@ export default function QuestionHeader({
 
         <div className="flex-1 min-w-0">
 
-          <h1 className="text-4xl font-bold tracking-tight text-gray-900">
+          <h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl lg:text-4xl">
             {question.title}
           </h1>
 
@@ -66,7 +65,7 @@ export default function QuestionHeader({
             ))}
           </div>
 
-          <div className="mt-8 flex items-center justify-between border-t pt-6">
+         <div className="mt-8 flex flex-col gap-5 border-t pt-6 sm:flex-row sm:items-center sm:justify-between">
 
             <div className="flex items-center gap-4">
 

@@ -24,13 +24,13 @@ export default function WelcomeCard() {
         <div className="min-w-0">
           {/* User heading */}
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-100 text-lg font-semibold text-blue-600 sm:h-12 sm:w-12 sm:text-xl">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-100 text-lg font-semibold text-brand-700 sm:h-12 sm:w-12 sm:text-xl">
               {profile?.full_name?.charAt(0).toUpperCase() || "U"}
             </div>
 
             <div className="flex min-w-0 items-center gap-2">
               <Hand
-                className="hidden shrink-0 text-sky-500 sm:block"
+                className="hidden shrink-0 text-brand-500 sm:block"
                 size={24}
               />
 
@@ -70,7 +70,7 @@ export default function WelcomeCard() {
         {/* Ask question */}
         <Link
           href="/questions/ask"
-          className="inline-flex w-full shrink-0 items-center justify-center  bg-orange-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-blue-700 sm:w-auto"
+          className="inline-flex w-full shrink-0 items-center justify-center rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-brand-700 sm:w-auto"
         >
           Ask Question
         </Link>

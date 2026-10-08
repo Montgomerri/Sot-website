@@ -21,7 +21,7 @@ export default function QuestionCard({
   const author = question.profiles;
 
   return (
-    <div className="border-b bg-white p-4 transition last:border-b-0 hover:bg-gray-50 sm:rounded-xl sm:border sm:p-6 sm:hover:border-blue-300 sm:hover:shadow-md">
+    <div className="border-b bg-white p-4 transition last:border-b-0 hover:bg-gray-50 sm:rounded-xl sm:border sm:p-6 sm:hover:border-brand-300 sm:hover:shadow-md">
       <div className="flex min-w-0 gap-3 sm:gap-6">
         {/* Left stats */}
         <div className="flex w-12 shrink-0 flex-col items-center text-gray-500 sm:w-20">
@@ -56,7 +56,7 @@ export default function QuestionCard({
         <div className="min-w-0 flex-1">
           {/* Title */}
           <Link href={`/questions/${question.id}`}>
-            <h2 className="break-words text-lg font-semibold leading-6 text-gray-900 hover:text-blue-600 sm:text-xl sm:leading-7">
+            <h2 className="break-words text-lg font-semibold leading-6 text-gray-900 hover:text-brand-700 sm:text-xl sm:leading-7">
               {question.title}
             </h2>
           </Link>
@@ -75,7 +75,7 @@ export default function QuestionCard({
               {question.tags.map((tag: string) => (
                 <span
                   key={tag}
-                  className="max-w-full break-words rounded-full bg-blue-100 px-2.5 py-1 text-xs text-blue-700 sm:px-3 sm:text-sm"
+                  className="max-w-full break-words rounded-full bg-brand-50 px-2.5 py-1 text-xs text-brand-700 sm:px-3 sm:text-sm"
                 >
                   {tag}
                 </span>
@@ -87,7 +87,7 @@ export default function QuestionCard({
           <div className="mt-4 flex flex-col gap-4 sm:mt-5 sm:flex-row sm:items-center sm:justify-between">
             {/* Author */}
             <div className="flex min-w-0 items-center gap-2.5 sm:gap-3">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm font-semibold text-blue-600 sm:h-10 sm:w-10">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-100 text-sm font-semibold text-brand-700 sm:h-10 sm:w-10">
                 {author?.full_name?.charAt(0).toUpperCase() ?? "U"}
               </div>
 

@@ -1,6 +1,8 @@
 // src/components/Hero.tsx
 "use client";
 
+import Link from "next/link";
+
 export default function Hero() {
   return (
     <>
@@ -72,6 +74,10 @@ export default function Hero() {
           cursor: pointer;
           font-family: "Poppins", sans-serif;
           white-space: nowrap;
+          text-decoration: none;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
         }
 
         .hero-btn-secondary {
@@ -166,23 +172,31 @@ export default function Hero() {
         <div className="container hero-inner">
           {/* Left Text */}
           <div className="hero-text">
-            <p className="hero-eyebrow">GIMPA · School of Technology</p>
+            <p className="hero-eyebrow">
+              GIMPA · School of Technology
+            </p>
 
             <h1 className="hero-title">
               Shaping Africa’s next generation of{" "}
-              <span className="hero-title-accent">tech leaders</span>
+              <span className="hero-title-accent">
+                tech leaders
+              </span>
             </h1>
 
             <p className="hero-subtitle">
               The Department of Computer Science &amp; Information Systems
               equips students with cutting-edge skills in technology, research,
-              and innovation — preparing them for global impact.
+              and innovation  preparing them for global impact.
             </p>
 
             <div className="hero-actions">
-              <button className="hero-btn-primary">
+              <Link
+                href="/signup"
+                className="hero-btn-primary"
+              >
                 Join our Asknet community
-              </button>
+              </Link>
+
               <button className="hero-btn-secondary">
                 ▶ How it Works
               </button>

@@ -15,7 +15,7 @@ export default function QuestionSidebar({
   question,
 }: Props) {
   return (
-    <div className="sticky top-24">
+    <div className="lg:sticky lg:top-24">
 
       <div className="flex w-20 flex-col items-center rounded-2xl border bg-white py-6">
 

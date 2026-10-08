@@ -17,7 +17,7 @@ export default function MainLayout({
   user,
 }: Props) {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-canvas">
       <Navbar user={user} />
 
       <div className="mx-auto flex w-full max-w-[1600px]">
@@ -27,7 +27,7 @@ export default function MainLayout({
         </div>
 
         {/* Main content */}
-        <main className="min-h-[calc(100vh-50px)] min-w-0 flex-1 bg-white">
+        <main className="min-h-[calc(100vh-50px)] min-w-0 flex-1">
           {children}
         </main>
 
