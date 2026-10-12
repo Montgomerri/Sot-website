@@ -1,90 +1,264 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { createClient } from "@/lib/supabase/client";
 
 import {
+  deleteLobbyMessage,
+  getCachedProfile,
   getLobbyMessages,
-  getLobbyMessageById,
+  getProfilesByIds,
+  hydrateLobbyRows,
   sendLobbyMessage,
   updateLobbyMessage,
-  deleteLobbyMessage,
+  uploadLobbyImage,
+  type LobbyRow,
 } from "@/services/lobby/lobby";
 
-import { LobbyMessage } from "@/types/lobby";
+import type { LobbyMessage } from "@/types/lobby";
+
+interface PendingJob {
+  content: string;
+  file: File | null;
+  replyToId: string | null;
+}
+
+const CATCH_UP_LIMIT = 30;
+
+function compareByTime(a: LobbyMessage, b: LobbyMessage) {
+  if (a.created_at < b.created_at) return -1;
+  if (a.created_at > b.created_at) return 1;
+  return 0;
+}
+
+/** Put a confirmed message in the right place (before any unsent ones). */
+function insertMessage(list: LobbyMessage[], message: LobbyMessage) {
+  let end = list.length;
+
+  while (end > 0 && list[end - 1].status) end--;
+
+  let index = end;
+
+  while (index > 0 && list[index - 1].created_at > message.created_at) {
+    index--;
+  }
+
+  return [...list.slice(0, index), message, ...list.slice(index)];
+}
+
+/** Merge a freshly loaded page into what we already have. */
+function mergeLatest(current: LobbyMessage[], latest: LobbyMessage[]) {
+  const latestIds = new Set(latest.map((m) => m.id));
+
+  const pending = current.filter((m) => m.status);
+  const kept = current.filter((m) => !m.status && !latestIds.has(m.id));
+
+  const merged = [...kept, ...latest].sort(compareByTime);
+
+  return [...merged, ...pending];
+}
 
 export default function useLobby() {
   const [messages, setMessages] = useState<LobbyMessage[]>([]);
-  const [currentUserId, setCurrentUserId] =
-    useState<string | null>(null);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
+  const [hasMore, setHasMore] = useState(false);
+  const [loadingOlder, setLoadingOlder] = useState(false);
+
+  const messagesRef = useRef<LobbyMessage[]>([]);
+  const currentUserIdRef = useRef<string | null>(null);
+  const pendingRef = useRef<Map<string, PendingJob>>(new Map());
+  const blobUrlsRef = useRef<Set<string>>(new Set());
+  const loadingOlderRef = useRef(false);
+
+  useEffect(() => {
+    messagesRef.current = messages;
+  }, [messages]);
+
+  // -----------------------------------------
+  // LOADING
+  // -----------------------------------------
+
+  const fetchLatest = useCallback(
+    async (isInitial: boolean, limit?: number) => {
+      const { messages: latest, hasMore: more } = await getLobbyMessages({
+        limit,
+        known: messagesRef.current,
+      });
+
+      setMessages((current) => mergeLatest(current, latest));
+
+      if (isInitial) setHasMore(more);
+    },
+    []
+  );
+
+  const reload = useCallback(async () => {
+    setLoadError(false);
+    setLoading(true);
+
+    try {
+      await fetchLatest(true);
+    } catch (error) {
+      console.error("Failed to load lobby messages:", error);
+      setLoadError(true);
+    } finally {
+      setLoading(false);
+    }
+  }, [fetchLatest]);
+
+  const loadOlder = useCallback(async () => {
+    if (loadingOlderRef.current) return;
+
+    const oldest = messagesRef.current.find((m) => !m.status);
+    if (!oldest) return;
+
+    loadingOlderRef.current = true;
+    setLoadingOlder(true);
+
+    try {
+      const { messages: older, hasMore: more } = await getLobbyMessages({
+        before: oldest.created_at,
+        known: messagesRef.current,
+      });
+
+      setMessages((current) => {
+        const ids = new Set(current.map((m) => m.id));
+        return [...older.filter((m) => !ids.has(m.id)), ...current];
+      });
+
+      setHasMore(more);
+    } catch (error) {
+      console.error("Failed to load older messages:", error);
+    } finally {
+      loadingOlderRef.current = false;
+      setLoadingOlder(false);
+    }
+  }, []);
+
+  // -----------------------------------------
+  // REALTIME
+  // -----------------------------------------
 
   useEffect(() => {
     const supabase = createClient();
 
-    let channel:
-      | ReturnType<typeof supabase.channel>
-      | null = null;
-
     let cancelled = false;
+    let channel: ReturnType<typeof supabase.channel> | null = null;
+    let subscribedBefore = false;
 
-    // -----------------------------------------
-    // AUTH STATE / REALTIME JWT SYNC
-    // -----------------------------------------
+    const blobUrls = blobUrlsRef.current;
 
+    function applyUserId(id: string | null) {
+      currentUserIdRef.current = id;
+      setCurrentUserId(id);
+    }
+
+    // Keep Realtime's token fresh when Supabase refreshes the session
     const {
       data: { subscription: authSubscription },
-    } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        console.log(
-          "Lobby auth event:",
-          event
-        );
-
-        if (cancelled) return;
-
-        if (session?.user) {
-          setCurrentUserId(session.user.id);
-        } else {
-          setCurrentUserId(null);
-        }
-
-        /*
-         * IMPORTANT:
-         *
-         * Supabase can refresh the access token while
-         * the lobby is open.
-         *
-         * Whenever that happens, give Realtime the
-         * fresh token instead of keeping the old one.
-         */
-        if (session?.access_token) {
-          supabase.realtime.setAuth(
-            session.access_token
-          );
-        }
-      }
-    );
-
-    async function setupRealtime() {
-      // -----------------------------------------
-      // CURRENT USER
-      // -----------------------------------------
-
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
+    } = supabase.auth.onAuthStateChange((_event, session) => {
       if (cancelled) return;
 
-      if (user) {
-        setCurrentUserId(user.id);
+      applyUserId(session?.user?.id ?? null);
+
+      if (session?.access_token) {
+        supabase.realtime.setAuth(session.access_token);
+      }
+    });
+
+    function catchUp() {
+      if (cancelled) return;
+
+      fetchLatest(false, CATCH_UP_LIMIT).catch((error) =>
+        console.error("Lobby catch-up failed:", error)
+      );
+    }
+
+    // Someone else's new message
+    async function handleInsert(payload: {
+      new: Record<string, unknown>;
+    }) {
+      const row = payload.new as unknown as LobbyRow;
+
+      if (messagesRef.current.some((m) => m.id === row.id)) return;
+
+      // The server confirming a message we already show: swap it in place
+      if (row.user_id === currentUserIdRef.current) {
+        const mine = messagesRef.current.find(
+          (m) =>
+            m.status === "sending" &&
+            m.user_id === row.user_id &&
+            m.content === row.content &&
+            !!m.image_url === !!row.image_url &&
+            (m.reply_to_id ?? null) === (row.reply_to_id ?? null)
+        );
+
+        if (mine) {
+          pendingRef.current.delete(mine.id);
+
+          setMessages((current) =>
+            current.map((m) =>
+              m.id === mine.id
+                ? {
+                    ...m,
+                    id: row.id,
+                    created_at: row.created_at,
+                    status: undefined,
+                  }
+                : m
+            )
+          );
+
+          return;
+        }
       }
 
-      // -----------------------------------------
-      // SESSION
-      // -----------------------------------------
+      try {
+        const [message] = await hydrateLobbyRows(
+          [row],
+          messagesRef.current
+        );
 
+        if (cancelled || !message) return;
+
+        setMessages((current) =>
+          current.some((m) => m.id === message.id)
+            ? current
+            : insertMessage(current, message)
+        );
+      } catch (error) {
+        console.error("Failed to process new lobby message:", error);
+      }
+    }
+
+    function handleUpdate(payload: { new: Record<string, unknown> }) {
+      const row = payload.new as unknown as LobbyRow;
+
+      setMessages((current) =>
+        current.map((m) =>
+          m.id === row.id ? { ...m, content: row.content } : m
+        )
+      );
+    }
+
+    function handleDelete(payload: { old: Record<string, unknown> }) {
+      const deletedId = payload.old.id as string | undefined;
+
+      if (!deletedId) return;
+
+      setMessages((current) => current.filter((m) => m.id !== deletedId));
+    }
+
+    function handleVisible() {
+      if (document.visibilityState === "visible") catchUp();
+    }
+
+    async function start() {
+      // Local session: no network call
       const {
         data: { session },
       } = await supabase.auth.getSession();
@@ -92,311 +266,273 @@ export default function useLobby() {
       if (cancelled) return;
 
       if (!session) {
-        console.error(
-          "No authenticated session found."
-        );
+        setLoadError(true);
+        setLoading(false);
         return;
       }
 
-      /*
-       * Set the CURRENT token.
-       *
-       * The auth listener above will keep this
-       * synchronized when Supabase refreshes it.
-       */
-      supabase.realtime.setAuth(
-        session.access_token
-      );
+      applyUserId(session.user.id);
+      supabase.realtime.setAuth(session.access_token);
 
-      // -----------------------------------------
-      // INSERT HANDLER
-      // -----------------------------------------
+      // Warm the cache so our own optimistic messages show our name
+      void getProfilesByIds([session.user.id]);
 
-      async function handleInsert(
-        payload: {
-          new: Record<string, unknown>;
-        }
-      ) {
-        const messageId =
-          payload.new.id as string;
+      // Subscribe and load the history at the same time
+      let resolveSubscribed: () => void = () => {};
 
-        try {
-          /*
-           * KEEP THIS DELAY.
-           *
-           * The database INSERT can reach Realtime
-           * slightly before the normal Supabase query
-           * can see the newly-created row.
-           *
-           * Your original implementation used this
-           * successfully, so we are not removing it
-           * while fixing JWT authentication.
-           */
-          await new Promise<void>((resolve) =>
-            setTimeout(resolve, 150)
-          );
-
-          const completeMessage =
-            await getLobbyMessageById(
-              messageId
-            );
-
-          if (
-            cancelled ||
-            !completeMessage
-          ) {
-            return;
-          }
-
-          setMessages((current) => {
-            const index = current.findIndex(
-              (message) =>
-                message.id ===
-                completeMessage.id
-            );
-
-            // -------------------------------------
-            // ALREADY EXISTS
-            // -------------------------------------
-
-            if (index !== -1) {
-              const updated = [...current];
-
-              updated[index] =
-                completeMessage;
-
-              return updated;
-            }
-
-            // -------------------------------------
-            // NEW MESSAGE
-            // -------------------------------------
-
-            return [
-              ...current,
-              completeMessage,
-            ];
-          });
-        } catch (error) {
-          console.error(
-            "Failed to process new lobby message:",
-            error
-          );
-        }
-      }
-
-      // -----------------------------------------
-      // UPDATE HANDLER
-      // -----------------------------------------
-
-      async function handleUpdate(
-        payload: {
-          new: Record<string, unknown>;
-        }
-      ) {
-        const messageId =
-          payload.new.id as string;
-
-        try {
-          const completeMessage =
-            await getLobbyMessageById(
-              messageId
-            );
-
-          if (
-            cancelled ||
-            !completeMessage
-          ) {
-            return;
-          }
-
-          setMessages((current) =>
-            current.map((message) =>
-              message.id ===
-              completeMessage.id
-                ? completeMessage
-                : message
-            )
-          );
-        } catch (error) {
-          console.error(
-            "Failed to update lobby message:",
-            error
-          );
-        }
-      }
-
-      // -----------------------------------------
-      // DELETE HANDLER
-      // -----------------------------------------
-
-      function handleDelete(
-        payload: {
-          old: Record<string, unknown>;
-        }
-      ) {
-        const deletedId =
-          payload.old.id as string;
-
-        setMessages((current) =>
-          current.filter(
-            (message) =>
-              message.id !== deletedId
-          )
-        );
-      }
-
-      // -----------------------------------------
-      // CREATE REALTIME CHANNEL
-      // -----------------------------------------
+      const subscribed = new Promise<void>((resolve) => {
+        resolveSubscribed = resolve;
+      });
 
       channel = supabase
         .channel("lobby-room")
-
         .on(
           "postgres_changes",
-          {
-            event: "INSERT",
-            schema: "public",
-            table: "lobby_messages",
-          },
+          { event: "INSERT", schema: "public", table: "lobby_messages" },
           handleInsert
         )
-
         .on(
           "postgres_changes",
-          {
-            event: "UPDATE",
-            schema: "public",
-            table: "lobby_messages",
-          },
+          { event: "UPDATE", schema: "public", table: "lobby_messages" },
           handleUpdate
         )
-
         .on(
           "postgres_changes",
-          {
-            event: "DELETE",
-            schema: "public",
-            table: "lobby_messages",
-          },
+          { event: "DELETE", schema: "public", table: "lobby_messages" },
           handleDelete
-        );
+        )
+        .subscribe((status) => {
+          if (status === "SUBSCRIBED") {
+            // After a dropped connection, fetch what we missed
+            if (subscribedBefore) catchUp();
 
-      // -----------------------------------------
-      // SUBSCRIBE FIRST
-      // -----------------------------------------
-
-      await new Promise<void>((resolve) => {
-        if (!channel) {
-          resolve();
-          return;
-        }
-
-        channel.subscribe((status, error) => {
-          console.log(
-            "Realtime subscription status:",
-            status
-          );
-
-          if (error) {
-            console.error(
-              "Realtime subscription error:",
-              error
-            );
+            subscribedBefore = true;
+            resolveSubscribed();
           }
 
           if (
-            status === "SUBSCRIBED" ||
             status === "CHANNEL_ERROR" ||
             status === "TIMED_OUT" ||
             status === "CLOSED"
           ) {
-            resolve();
+            resolveSubscribed();
           }
         });
-      });
+
+      await reload();
 
       if (cancelled) return;
 
-      // -----------------------------------------
-      // LOAD EXISTING MESSAGES
-      // -----------------------------------------
-
-      const data =
-        await getLobbyMessages();
-
-      if (cancelled) return;
-
-      setMessages(data);
+      // Anything posted between the history query and the live connection
+      await subscribed;
+      catchUp();
     }
 
-    // -----------------------------------------
-    // START
-    // -----------------------------------------
+    document.addEventListener("visibilitychange", handleVisible);
+    window.addEventListener("online", handleVisible);
 
-    setupRealtime();
-
-    // -----------------------------------------
-    // CLEANUP
-    // -----------------------------------------
+    start();
 
     return () => {
       cancelled = true;
 
       authSubscription.unsubscribe();
 
+      document.removeEventListener("visibilitychange", handleVisible);
+      window.removeEventListener("online", handleVisible);
+
       if (channel) {
         supabase.removeChannel(channel);
         channel = null;
       }
+
+      blobUrls.forEach((url) => URL.revokeObjectURL(url));
+      blobUrls.clear();
     };
+  }, [fetchLatest, reload]);
+
+  // -----------------------------------------
+  // SEND (optimistic: shows instantly)
+  // -----------------------------------------
+
+  const deliver = useCallback(async (tmpId: string) => {
+    const job = pendingRef.current.get(tmpId);
+    const userId = currentUserIdRef.current;
+
+    if (!job || !userId) return;
+
+    setMessages((current) =>
+      current.map((m) =>
+        m.id === tmpId ? { ...m, status: "sending" } : m
+      )
+    );
+
+    try {
+      const imageUrl = job.file
+        ? await uploadLobbyImage(job.file, userId)
+        : null;
+
+      const row = await sendLobbyMessage({
+        userId,
+        content: job.content,
+        imageUrl,
+        replyToId: job.replyToId,
+      });
+
+      pendingRef.current.delete(tmpId);
+
+      setMessages((current) => {
+        // The live connection already swapped it in
+        if (current.some((m) => m.id === row.id)) {
+          return current.filter((m) => m.id !== tmpId);
+        }
+
+        return current.map((m) =>
+          m.id === tmpId
+            ? {
+                ...m,
+                id: row.id,
+                created_at: row.created_at,
+                status: undefined,
+                profiles: m.profiles ?? getCachedProfile(m.user_id),
+              }
+            : m
+        );
+      });
+    } catch (error) {
+      console.error("Failed to send lobby message:", error);
+
+      setMessages((current) =>
+        current.map((m) =>
+          m.id === tmpId ? { ...m, status: "failed" } : m
+        )
+      );
+    }
+  }, []);
+
+  const sendMessage = useCallback(
+    async (
+      content: string,
+      file?: File | null,
+      replyTo?: LobbyMessage | null
+    ) => {
+      const userId = currentUserIdRef.current;
+
+      if (!userId) return;
+
+      const tmpId = `tmp-${crypto.randomUUID()}`;
+
+      const previewUrl = file ? URL.createObjectURL(file) : null;
+
+      if (previewUrl) blobUrlsRef.current.add(previewUrl);
+
+      pendingRef.current.set(tmpId, {
+        content,
+        file: file ?? null,
+        replyToId: replyTo?.id ?? null,
+      });
+
+      const optimistic: LobbyMessage = {
+        id: tmpId,
+        user_id: userId,
+        content,
+        created_at: new Date().toISOString(),
+        image_url: previewUrl,
+        reply_to_id: replyTo?.id ?? null,
+        status: "sending",
+        profiles: getCachedProfile(userId),
+        reply_to: replyTo
+          ? {
+              id: replyTo.id,
+              user_id: replyTo.user_id,
+              content: replyTo.content,
+              profiles: replyTo.profiles ?? null,
+            }
+          : null,
+      };
+
+      setMessages((current) => [...current, optimistic]);
+
+      await deliver(tmpId);
+    },
+    [deliver]
+  );
+
+  const retryMessage = useCallback(
+    (id: string) => deliver(id),
+    [deliver]
+  );
+
+  const discardMessage = useCallback((id: string) => {
+    pendingRef.current.delete(id);
+    setMessages((current) => current.filter((m) => m.id !== id));
   }, []);
 
   // -----------------------------------------
-  // SEND MESSAGE
+  // EDIT / DELETE (optimistic, rolled back on error)
   // -----------------------------------------
 
-  async function sendMessage(
-  content: string,
-  imageUrl?: string | null,
-  replyToId?: string | null
-) {
-  await sendLobbyMessage(
-    content,
-    imageUrl,
-    replyToId
+  const editMessage = useCallback(
+    async (id: string, content: string) => {
+      const before = messagesRef.current.find((m) => m.id === id)?.content;
+
+      setMessages((current) =>
+        current.map((m) => (m.id === id ? { ...m, content } : m))
+      );
+
+      try {
+        await updateLobbyMessage(id, content);
+      } catch (error) {
+        if (before !== undefined) {
+          setMessages((current) =>
+            current.map((m) =>
+              m.id === id ? { ...m, content: before } : m
+            )
+          );
+        }
+
+        throw error;
+      }
+    },
+    []
   );
-}
 
-  // -----------------------------------------
-  // EDIT MESSAGE
-  // -----------------------------------------
+  const deleteMessage = useCallback(async (id: string) => {
+    const snapshot = messagesRef.current;
+    const index = snapshot.findIndex((m) => m.id === id);
+    const removed = snapshot[index];
 
-  async function editMessage(
-    id: string,
-    content: string
-  ) {
-    await updateLobbyMessage(
-      id,
-      content
-    );
-  }
+    setMessages((current) => current.filter((m) => m.id !== id));
 
-  // -----------------------------------------
-  // DELETE MESSAGE
-  // -----------------------------------------
+    try {
+      await deleteLobbyMessage(id);
+    } catch (error) {
+      if (removed) {
+        setMessages((current) => {
+          if (current.some((m) => m.id === id)) return current;
 
-  async function deleteMessage(
-    id: string
-  ) {
-    await deleteLobbyMessage(id);
-  }
+          const next = [...current];
+          next.splice(Math.min(index, next.length), 0, removed);
+          return next;
+        });
+      }
+
+      throw error;
+    }
+  }, []);
 
   return {
     messages,
     currentUserId,
+    loading,
+    loadError,
+    reload,
+    hasMore,
+    loadingOlder,
+    loadOlder,
     sendMessage,
+    retryMessage,
+    discardMessage,
     editMessage,
     deleteMessage,
   };

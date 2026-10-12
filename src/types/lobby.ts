@@ -1,3 +1,8 @@
+export interface LobbyProfile {
+  full_name: string | null;
+  avatar_url: string | null;
+}
+
 export interface LobbyMessage {
   id: string;
   user_id: string;
@@ -6,20 +11,16 @@ export interface LobbyMessage {
   image_url?: string | null;
   reply_to_id?: string | null;
 
-  profiles?: {
-    full_name: string | null;
-    avatar_url: string | null;
-  } | null;
+  /** Only set while a message hasn't been confirmed by the server yet */
+  status?: "sending" | "failed";
+
+  profiles?: LobbyProfile | null;
 
   reply_to?: {
     id: string;
     content: string;
     user_id: string;
-
-    profiles?: {
-      full_name: string | null;
-      avatar_url: string | null;
-    } | null;
+    profiles?: LobbyProfile | null;
   } | null;
 }
 

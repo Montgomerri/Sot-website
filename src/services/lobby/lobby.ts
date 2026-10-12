@@ -1,267 +1,246 @@
 import { createClient } from "@/lib/supabase/client";
 
-import { LobbyMessage } from "@/types/lobby";
+import type { LobbyMessage, LobbyProfile } from "@/types/lobby";
 
-/**
- * Build a complete lobby message.
- *
- * We intentionally fetch the profile and reply separately
- * instead of relying on Supabase's nested self-relation.
- * This prevents realtime messages from incorrectly showing
- * "User / Image" until the page is refreshed.
- */
-async function hydrateLobbyMessage(
-  row: {
-    id: string;
-    user_id: string;
-    content: string;
-    created_at: string;
-    image_url: string | null;
-    reply_to_id: string | null;
-  },
-  supabase: ReturnType<typeof createClient>
-): Promise<LobbyMessage> {
-  // -----------------------------------------
-  // GET MESSAGE AUTHOR
-  // -----------------------------------------
+/** How many messages are loaded at a time */
+export const LOBBY_PAGE_SIZE = 50;
 
-  const { data: profile, error: profileError } =
-    await supabase
+export interface LobbyRow {
+  id: string;
+  user_id: string;
+  content: string;
+  created_at: string;
+  image_url: string | null;
+  reply_to_id: string | null;
+}
+
+const COLUMNS = "id, user_id, content, created_at, image_url, reply_to_id";
+
+/* -----------------------------------------
+   PROFILE CACHE
+   Names and avatars are looked up once per
+   person for the life of the page, instead of
+   once per message.
+----------------------------------------- */
+
+const profileCache = new Map<string, LobbyProfile | null>();
+
+export function getCachedProfile(userId: string): LobbyProfile | null {
+  return profileCache.get(userId) ?? null;
+}
+
+export async function getProfilesByIds(
+  ids: string[]
+): Promise<Map<string, LobbyProfile | null>> {
+  const unique = [...new Set(ids)];
+  const missing = unique.filter((id) => !profileCache.has(id));
+
+  if (missing.length > 0) {
+    const supabase = createClient();
+
+    const { data, error } = await supabase
       .from("profiles")
-      .select("full_name, avatar_url")
-      .eq("id", row.user_id)
-      .maybeSingle();
+      .select("id, full_name, avatar_url")
+      .in("id", missing);
 
-  if (profileError) {
-    console.error(
-      "Failed to load message profile:",
-      profileError
-    );
-  }
+    if (error) {
+      console.error("Failed to load profiles:", error);
+    } else {
+      const found = new Map<string, LobbyProfile>();
 
-  // -----------------------------------------
-  // DEFAULT: NO REPLY
-  // -----------------------------------------
-
-  let replyTo: LobbyMessage["reply_to"] = null;
-
-  // -----------------------------------------
-  // GET REPLY MESSAGE
-  // -----------------------------------------
-
-  if (row.reply_to_id) {
-    const { data: replyRow, error: replyError } =
-      await supabase
-        .from("lobby_messages")
-        .select(
-          `
-            id,
-            user_id,
-            content,
-            created_at,
-            image_url,
-            reply_to_id
-          `
-        )
-        .eq("id", row.reply_to_id)
-        .maybeSingle();
-
-    if (replyError) {
-      console.error(
-        "Failed to load reply message:",
-        replyError
+      (data ?? []).forEach((p) =>
+        found.set(p.id, {
+          full_name: p.full_name,
+          avatar_url: p.avatar_url,
+        })
       );
-    }
 
-    if (replyRow) {
-      // ---------------------------------------
-      // GET REPLY AUTHOR
-      // ---------------------------------------
-
-      const {
-        data: replyProfile,
-        error: replyProfileError,
-      } = await supabase
-        .from("profiles")
-        .select("full_name, avatar_url")
-        .eq("id", replyRow.user_id)
-        .maybeSingle();
-
-      if (replyProfileError) {
-        console.error(
-          "Failed to load reply profile:",
-          replyProfileError
-        );
-      }
-
-      replyTo = {
-        id: replyRow.id,
-        user_id: replyRow.user_id,
-        content: replyRow.content,
-        profiles: replyProfile ?? null,
-      };
+      missing.forEach((id) => profileCache.set(id, found.get(id) ?? null));
     }
   }
 
-  // -----------------------------------------
-  // RETURN COMPLETE MESSAGE
-  // -----------------------------------------
+  const result = new Map<string, LobbyProfile | null>();
+  unique.forEach((id) => result.set(id, profileCache.get(id) ?? null));
 
-  return {
-    id: row.id,
-    user_id: row.user_id,
-    content: row.content,
-    created_at: row.created_at,
-    image_url: row.image_url,
-    reply_to_id: row.reply_to_id,
-    profiles: profile ?? null,
-
-    // IMPORTANT:
-    // Normal messages always have reply_to = null.
-    // Only actual replies receive a reply object.
-    reply_to: replyTo,
-  };
+  return result;
 }
 
-/**
- * Get all lobby messages.
- */
-export async function getLobbyMessages(): Promise<
-  LobbyMessage[]
-> {
+/* -----------------------------------------
+   HYDRATE ROWS INTO COMPLETE MESSAGES
+   Always 2 queries at most (replied-to
+   messages + profiles), however many rows.
+----------------------------------------- */
+
+export async function hydrateLobbyRows(
+  rows: LobbyRow[],
+  known: LobbyMessage[] = []
+): Promise<LobbyMessage[]> {
+  if (rows.length === 0) return [];
+
   const supabase = createClient();
 
-  const { data, error } = await supabase
-    .from("lobby_messages")
-    .select(
-      `
-        id,
-        user_id,
-        content,
-        created_at,
-        image_url,
-        reply_to_id
-      `
-    )
-    .order("created_at", {
-      ascending: true,
-    });
+  // Everything we can already see (to resolve replies without a query)
+  const lookup = new Map<
+    string,
+    { id: string; user_id: string; content: string }
+  >();
 
-  if (error) {
-    console.error(
-      "Failed to load lobby messages:",
-      error
-    );
+  known.forEach((m) => lookup.set(m.id, m));
+  rows.forEach((r) => lookup.set(r.id, r));
 
-    return [];
+  const replyIds = [
+    ...new Set(
+      rows
+        .map((r) => r.reply_to_id)
+        .filter((id): id is string => !!id)
+    ),
+  ];
+
+  const missingReplyIds = replyIds.filter((id) => !lookup.has(id));
+
+  if (missingReplyIds.length > 0) {
+    const { data, error } = await supabase
+      .from("lobby_messages")
+      .select("id, user_id, content")
+      .in("id", missingReplyIds);
+
+    if (error) {
+      console.error("Failed to load replied-to messages:", error);
+    } else {
+      (data ?? []).forEach((r) => lookup.set(r.id, r));
+    }
   }
 
-  if (!data) {
-    return [];
-  }
+  const userIds = [
+    ...rows.map((r) => r.user_id),
+    ...replyIds
+      .map((id) => lookup.get(id)?.user_id)
+      .filter((id): id is string => !!id),
+  ];
 
-  const messages = await Promise.all(
-    data.map((row) =>
-      hydrateLobbyMessage(row, supabase)
-    )
-  );
+  const profiles = await getProfilesByIds(userIds);
 
-  return messages;
+  return rows.map((row) => {
+    const reply = row.reply_to_id ? lookup.get(row.reply_to_id) : undefined;
+
+    return {
+      id: row.id,
+      user_id: row.user_id,
+      content: row.content,
+      created_at: row.created_at,
+      image_url: row.image_url,
+      reply_to_id: row.reply_to_id,
+      profiles: profiles.get(row.user_id) ?? null,
+      reply_to: reply
+        ? {
+            id: reply.id,
+            user_id: reply.user_id,
+            content: reply.content,
+            profiles: profiles.get(reply.user_id) ?? null,
+          }
+        : null,
+    };
+  });
 }
 
-/**
- * Get one complete lobby message by ID.
- *
- * This is used by the realtime INSERT handler.
- */
-export async function getLobbyMessageById(
-  id: string
-): Promise<LobbyMessage | null> {
+/* -----------------------------------------
+   LOAD MESSAGES (newest page, or an older one)
+----------------------------------------- */
+
+export async function getLobbyMessages(
+  options: {
+    before?: string;
+    limit?: number;
+    known?: LobbyMessage[];
+  } = {}
+): Promise<{ messages: LobbyMessage[]; hasMore: boolean }> {
+  const { before, limit = LOBBY_PAGE_SIZE, known = [] } = options;
+
   const supabase = createClient();
 
-  const { data, error } = await supabase
+  let query = supabase
     .from("lobby_messages")
-    .select(
-      `
-        id,
-        user_id,
-        content,
-        created_at,
-        image_url,
-        reply_to_id
-      `
-    )
-    .eq("id", id)
-    .maybeSingle();
+    .select(COLUMNS)
+    .order("created_at", { ascending: false })
+    .limit(limit);
+
+  if (before) {
+    query = query.lt("created_at", before);
+  }
+
+  const { data, error } = await query;
 
   if (error) {
-    console.error(
-      "Failed to load lobby message:",
-      error
-    );
-
+    console.error("Failed to load lobby messages:", error);
     throw error;
   }
 
-  if (!data) {
-    return null;
-  }
+  const rows = ((data ?? []) as LobbyRow[]).reverse();
 
-  return hydrateLobbyMessage(
-    data,
-    supabase
-  );
+  return {
+    messages: await hydrateLobbyRows(rows, known),
+    hasMore: rows.length === limit,
+  };
 }
 
-/**
- * Send a lobby message.
- */
-export async function sendLobbyMessage(
-  content: string,
-  imageUrl?: string | null,
-  replyToId?: string | null
+/* -----------------------------------------
+   SEND / EDIT / DELETE
+----------------------------------------- */
+
+export async function uploadLobbyImage(
+  file: File,
+  userId: string
 ): Promise<string> {
   const supabase = createClient();
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const extension = file.name.split(".").pop() || "jpg";
+  const path = `${userId}/${crypto.randomUUID()}.${extension}`;
 
-  if (!user) {
-    throw new Error(
-      "User not authenticated"
-    );
-  }
+  const { error } = await supabase.storage
+    .from("lobby-images")
+    .upload(path, file, {
+      cacheControl: "3600",
+      upsert: false,
+    });
+
+  if (error) throw error;
+
+  return supabase.storage.from("lobby-images").getPublicUrl(path).data
+    .publicUrl;
+}
+
+/**
+ * The caller passes the user id (it already knows it), which avoids a
+ * network round trip to the auth server before every message.
+ */
+export async function sendLobbyMessage(input: {
+  userId: string;
+  content: string;
+  imageUrl?: string | null;
+  replyToId?: string | null;
+}): Promise<LobbyRow> {
+  const supabase = createClient();
 
   const { data, error } = await supabase
     .from("lobby_messages")
     .insert({
-      user_id: user.id,
-      content,
-      image_url: imageUrl ?? null,
-      reply_to_id: replyToId ?? null,
+      user_id: input.userId,
+      content: input.content,
+      image_url: input.imageUrl ?? null,
+      reply_to_id: input.replyToId ?? null,
     })
-    .select("id")
+    .select(COLUMNS)
     .single();
 
   if (error) {
-    console.error(
-      "Failed to send lobby message:",
-      error
-    );
-
+    console.error("Failed to send lobby message:", error);
     throw error;
   }
 
-  return data.id;
+  return data as LobbyRow;
 }
 
-/**
- * Delete a lobby message.
- */
-export async function deleteLobbyMessage(
-  id: string
-) {
+export async function deleteLobbyMessage(id: string) {
   const supabase = createClient();
 
   const { error } = await supabase
@@ -270,18 +249,11 @@ export async function deleteLobbyMessage(
     .eq("id", id);
 
   if (error) {
-    console.error(
-      "Failed to delete lobby message:",
-      error
-    );
-
+    console.error("Failed to delete lobby message:", error);
     throw error;
   }
 }
 
-/**
- * Update a lobby message.
- */
 export async function updateLobbyMessage(
   id: string,
   content: string
@@ -290,17 +262,11 @@ export async function updateLobbyMessage(
 
   const { error } = await supabase
     .from("lobby_messages")
-    .update({
-      content,
-    })
+    .update({ content })
     .eq("id", id);
 
   if (error) {
-    console.error(
-      "Failed to update lobby message:",
-      error
-    );
-
+    console.error("Failed to update lobby message:", error);
     throw error;
   }
 }

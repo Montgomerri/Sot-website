@@ -6,78 +6,69 @@ import ChatHeader from "./ChatHeader";
 import MessageList from "./MessageList";
 import MessageInput from "./MessageInput";
 
-import { LobbyMessage } from "@/types/lobby";
+import type { ReactionSummary } from "@/hooks/useLobbyReactions";
+import type { LobbyMessage } from "@/types/lobby";
 
 interface Props {
   messages: LobbyMessage[];
+  currentUserId: string | null;
+
+  loading: boolean;
+  loadError: boolean;
+  onRetryLoad: () => void;
+
+  hasMore: boolean;
+  loadingOlder: boolean;
+  onLoadOlder: () => void | Promise<void>;
 
   sendMessage: (
     content: string,
-    imageUrl?: string | null,
-    replyToId?: string | null
-  ) => Promise<void>;
+    file?: File | null,
+    replyTo?: LobbyMessage | null
+  ) => void | Promise<void>;
 
-  currentUserId: string | null;
+  reactions: Record<string, ReactionSummary[]>;
+  onToggleReaction: (messageId: string, emoji: string) => void;
 
-  onEdit: (
-    id: string,
-    content: string
-  ) => Promise<void>;
-
-  onDelete: (
-    id: string
-  ) => Promise<void>;
+  onEdit: (id: string, content: string) => Promise<void>;
+  onDelete: (id: string) => Promise<void>;
+  onRetry: (id: string) => void;
+  onDiscard: (id: string) => void;
 
   onOpenChannels: () => void;
-
   onOpenMembers: () => void;
 }
 
 export default function ChatArea({
   messages,
-  sendMessage,
   currentUserId,
+  loading,
+  loadError,
+  onRetryLoad,
+  hasMore,
+  loadingOlder,
+  onLoadOlder,
+  sendMessage,
+  reactions,
+  onToggleReaction,
   onEdit,
   onDelete,
+  onRetry,
+  onDiscard,
   onOpenChannels,
   onOpenMembers,
 }: Props) {
-  const [replyingTo, setReplyingTo] =
-    useState<LobbyMessage | null>(null);
+  const [replyingTo, setReplyingTo] = useState<LobbyMessage | null>(null);
 
-  function handleReply(message: LobbyMessage) {
-    setReplyingTo(message);
-  }
-
-  function cancelReply() {
-    setReplyingTo(null);
-  }
-
-  async function handleSendMessage(
-    content: string,
-    imageUrl?: string | null
-  ) {
-    await sendMessage(
-      content,
-      imageUrl,
-      replyingTo?.id ?? null
-    );
+  // Not awaited: the message shows up instantly while it sends
+  function handleSendMessage(content: string, file?: File | null) {
+    void sendMessage(content, file ?? null, replyingTo);
 
     setReplyingTo(null);
   }
 
   return (
-    <main
-      className="
-        flex
-        min-w-0
-        min-h-0
-        flex-1
-        flex-col
-        overflow-hidden
-        bg-white
-      "
-    >
+    <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-white">
       <ChatHeader
         onOpenChannels={onOpenChannels}
         onOpenMembers={onOpenMembers}
@@ -86,15 +77,25 @@ export default function ChatArea({
       <MessageList
         messages={messages}
         currentUserId={currentUserId}
+        loading={loading}
+        loadError={loadError}
+        onRetryLoad={onRetryLoad}
+        hasMore={hasMore}
+        loadingOlder={loadingOlder}
+        onLoadOlder={onLoadOlder}
+        reactions={reactions}
+        onToggleReaction={onToggleReaction}
         onEdit={onEdit}
         onDelete={onDelete}
-        onReply={handleReply}
+        onReply={setReplyingTo}
+        onRetry={onRetry}
+        onDiscard={onDiscard}
       />
 
       <MessageInput
         sendMessage={handleSendMessage}
         replyingTo={replyingTo}
-        onCancelReply={cancelReply}
+        onCancelReply={() => setReplyingTo(null)}
       />
     </main>
   );

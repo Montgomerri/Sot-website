@@ -1,108 +1,58 @@
 "use client";
 
-import {
-  Menu,
-  Users,
-} from "lucide-react";
+import Link from "next/link";
+import { ArrowLeft, Menu, Users } from "lucide-react";
 
 interface Props {
   onOpenChannels: () => void;
   onOpenMembers: () => void;
 }
 
+const iconButton =
+  "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-gray-500 transition hover:bg-gray-100 hover:text-gray-900";
+
 export default function ChatHeader({
   onOpenChannels,
   onOpenMembers,
 }: Props) {
   return (
-    <header
-      className="
-        relative
-        z-30
-        flex
-        h-16
-        min-h-16
-        shrink-0
-        items-center
-        border-b
-        border-gray-200
-        bg-white
-        px-3
-        sm:px-6
-      "
-    >
-      {/* Mobile channel button */}
+    <header className="relative z-30 flex h-16 min-h-16 shrink-0 items-center border-b border-gray-200 bg-white px-3 sm:px-6">
+      {/* Back to the rest of the app */}
+      <Link
+        href="/dashboard"
+        aria-label="Back to Asknet"
+        className={`${iconButton} mr-2`}
+      >
+        <ArrowLeft size={20} />
+      </Link>
 
+      {/* Mobile channel button */}
       <button
         type="button"
         onClick={onOpenChannels}
         aria-label="Open channels"
-        className="
-          mr-3
-          flex
-          h-9
-          w-9
-          shrink-0
-          items-center
-          justify-center
-          rounded-lg
-          text-gray-500
-          transition
-          hover:bg-gray-100
-          hover:text-gray-900
-          md:hidden
-        "
+        className={`${iconButton} mr-3 md:hidden`}
       >
         <Menu size={20} />
       </button>
 
       {/* Channel information */}
-
       <div className="min-w-0 flex-1">
-        <h2
-          className="
-            truncate
-            text-sm
-            font-semibold
-            text-gray-900
-            sm:text-base
-          "
-        >
+        <h2 className="truncate text-sm font-semibold text-gray-900 sm:text-base">
           General Lobby
         </h2>
 
-        <p
-          className="
-            truncate
-            text-[11px]
-            text-gray-500
-            sm:text-xs
-          "
-        >
+        <p className="truncate text-[11px] text-gray-500 sm:text-xs">
           Community discussion
         </p>
       </div>
 
       {/* Mobile member button */}
-
       <button
         type="button"
         onClick={onOpenMembers}
         aria-label="Open members"
-        className="
-          flex
-          h-9
-          w-9
-          shrink-0
-          items-center
-          justify-center
-          rounded-lg
-          text-gray-500
-          transition
-          hover:bg-gray-100
-          hover:text-gray-900
-          lg:hidden
-        "
+        className={`${iconButton} lg:hidden`}
       >
         <Users size={20} />
       </button>

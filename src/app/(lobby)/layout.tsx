@@ -1,11 +1,21 @@
-export default function LobbyLayout({
+import { redirect } from "next/navigation";
+
+import { createClient } from "@/lib/supabase/server";
+
+export default async function LobbyLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <main className="h-screen">
-      {children}
-    </main>
-  );
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  return <main className="h-screen">{children}</main>;
 }

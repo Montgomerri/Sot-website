@@ -1,30 +1,24 @@
 "use client";
 
-import {
-  useRef,
-  useState,
-} from "react";
+import { useEffect, useRef, useState } from "react";
+import { Paperclip, Send, X } from "lucide-react";
 
-import {
-  Paperclip,
-  Smile,
-  Send,
-  X,
-} from "lucide-react";
-
-import { createClient } from "@/lib/supabase/client";
-import { LobbyMessage } from "@/types/lobby";
+import type { LobbyMessage } from "@/types/lobby";
 
 interface Props {
   sendMessage: (
     content: string,
-    imageUrl?: string | null,
-    replyToId?: string | null
-  ) => Promise<void>;
+    file?: File | null
+  ) => void | Promise<void>;
 
   replyingTo: LobbyMessage | null;
 
   onCancelReply: () => void;
+}
+
+interface SelectedImage {
+  file: File;
+  url: string;
 }
 
 export default function MessageInput({
@@ -32,153 +26,79 @@ export default function MessageInput({
   replyingTo,
   onCancelReply,
 }: Props) {
-  const [message, setMessage] =
-    useState("");
+  const [message, setMessage] = useState("");
+  const [image, setImage] = useState<SelectedImage | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
 
-  const [uploading, setUploading] =
-    useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const imageRef = useRef<SelectedImage | null>(null);
 
-  const [selectedImage, setSelectedImage] =
-    useState<File | null>(null);
+  useEffect(() => {
+    imageRef.current = image;
+  }, [image]);
 
-  const fileInputRef =
-    useRef<HTMLInputElement>(null);
+  // Release the preview when leaving the page
+  useEffect(() => {
+    return () => {
+      if (imageRef.current) URL.revokeObjectURL(imageRef.current.url);
+    };
+  }, []);
 
-  function openFilePicker() {
-    fileInputRef.current?.click();
+  function clearImage() {
+    if (imageRef.current) URL.revokeObjectURL(imageRef.current.url);
+
+    setImage(null);
   }
 
   function handleFileChange(
     event: React.ChangeEvent<HTMLInputElement>
   ) {
-    const file =
-      event.target.files?.[0];
+    const file = event.target.files?.[0];
+
+    event.target.value = "";
 
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
-      alert("Please select an image.");
+      setNotice("Please choose an image.");
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      alert(
-        "Image must be smaller than 5MB."
-      );
+      setNotice("Image must be smaller than 5MB.");
       return;
     }
 
-    setSelectedImage(file);
+    setNotice(null);
 
-    event.target.value = "";
+    if (imageRef.current) URL.revokeObjectURL(imageRef.current.url);
+
+    // The preview URL is created once, not on every keystroke
+    setImage({ file, url: URL.createObjectURL(file) });
   }
 
-  function removeSelectedImage() {
-    setSelectedImage(null);
+  // The message appears in the chat straight away, so the box clears
+  // immediately and keeps focus (the keyboard stays open on phones).
+  function handleSend() {
+    const text = message.trim();
+
+    if (!text && !image) return;
+
+    void sendMessage(text, image?.file ?? null);
+
+    setMessage("");
+    setNotice(null);
+    clearImage();
+    onCancelReply();
+
+    inputRef.current?.focus();
   }
 
-  async function uploadImage(file: File) {
-    const supabase = createClient();
-
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      throw new Error(
-        "User not authenticated"
-      );
-    }
-
-    const extension =
-      file.name.split(".").pop() || "jpg";
-
-    const fileName =
-      `${user.id}/${crypto.randomUUID()}.${extension}`;
-
-    const { error } =
-      await supabase.storage
-        .from("lobby-images")
-        .upload(
-          fileName,
-          file,
-          {
-            cacheControl: "3600",
-            upsert: false,
-          }
-        );
-
-    if (error) {
-      throw error;
-    }
-
-    const {
-      data: publicUrlData,
-    } = supabase.storage
-      .from("lobby-images")
-      .getPublicUrl(fileName);
-
-    return publicUrlData.publicUrl;
-  }
-
-  async function handleSend() {
-    if (
-      !message.trim() &&
-      !selectedImage
-    ) {
-      return;
-    }
-
-    try {
-      setUploading(true);
-
-      let imageUrl:
-        | string
-        | null = null;
-
-      if (selectedImage) {
-        imageUrl =
-          await uploadImage(
-            selectedImage
-          );
-      }
-
-      await sendMessage(
-        message.trim(),
-        imageUrl,
-        replyingTo?.id ?? null
-      );
-
-      setMessage("");
-      setSelectedImage(null);
-      onCancelReply();
-    } catch (error) {
-      console.error(
-        "Failed to send message:",
-        error
-      );
-
-      alert(
-        "Failed to send message. Please try again."
-      );
-    } finally {
-      setUploading(false);
-    }
-  }
+  const canSend = message.trim().length > 0 || image !== null;
 
   return (
-    <div
-  className="
-    relative
-    z-30
-    shrink-0
-    border-t
-    border-gray-200
-    bg-white
-    p-3
-    sm:p-4
-  "
->
+    <div className="relative z-30 shrink-0 border-t border-gray-200 bg-white p-3 sm:p-4">
       <input
         ref={fileInputRef}
         type="file"
@@ -188,67 +108,23 @@ export default function MessageInput({
       />
 
       {/* Reply preview */}
-
       {replyingTo && (
-        <div
-          className="
-            mb-3
-            flex
-            items-center
-            justify-between
-            rounded-xl
-            border
-            border-gray-200
-            bg-gray-50
-            px-3
-            py-2
-          "
-        >
+        <div className="mb-3 flex items-center justify-between rounded-xl border border-gray-200 bg-gray-50 px-3 py-2">
           <div className="min-w-0">
-            <p
-              className="
-                text-xs
-                font-semibold
-                text-blue-600
-              "
-            >
-              Replying to{" "}
-              {replyingTo.profiles
-                ?.full_name ??
-                "User"}
+            <p className="text-xs font-semibold text-blue-600">
+              Replying to {replyingTo.profiles?.full_name ?? "User"}
             </p>
 
-            <p
-              className="
-                mt-0.5
-                truncate
-                text-xs
-                text-gray-500
-              "
-            >
-              {replyingTo.content ||
-                "Image"}
+            <p className="mt-0.5 truncate text-xs text-gray-500">
+              {replyingTo.content || "Image"}
             </p>
           </div>
 
           <button
             type="button"
             onClick={onCancelReply}
-            className="
-              ml-3
-              flex
-              h-8
-              w-8
-              shrink-0
-              items-center
-              justify-center
-              rounded-lg
-              text-gray-400
-              transition
-              hover:bg-gray-200
-              hover:text-gray-700
-            "
             aria-label="Cancel reply"
+            className="ml-3 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-gray-400 transition hover:bg-gray-200 hover:text-gray-700"
           >
             <X size={16} />
           </button>
@@ -256,187 +132,80 @@ export default function MessageInput({
       )}
 
       {/* Selected image preview */}
-
-      {selectedImage && (
-        <div
-          className="
-            mb-3
-            flex
-            items-center
-            gap-3
-            rounded-xl
-            border
-            border-gray-200
-            bg-gray-50
-            p-2
-          "
-        >
-          <div
-            className="
-              relative
-              h-16
-              w-16
-              shrink-0
-              overflow-hidden
-              rounded-lg
-              border
-              border-gray-200
-              bg-white
-            "
-          >
+      {image && (
+        <div className="mb-3 flex items-center gap-3 rounded-xl border border-gray-200 bg-gray-50 p-2">
+          <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg border border-gray-200 bg-white">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={URL.createObjectURL(
-                selectedImage
-              )}
+              src={image.url}
               alt="Selected image preview"
-              className="
-                h-full
-                w-full
-                object-cover
-              "
+              className="h-full w-full object-cover"
             />
           </div>
 
           <div className="min-w-0 flex-1">
-            <p
-              className="
-                truncate
-                text-sm
-                font-medium
-                text-gray-700
-              "
-            >
-              {selectedImage.name}
+            <p className="truncate text-sm font-medium text-gray-700">
+              {image.file.name}
             </p>
 
-            <p className="text-xs text-gray-400">
-              Ready to send
-            </p>
+            <p className="text-xs text-gray-400">Ready to send</p>
           </div>
 
           <button
             type="button"
-            onClick={
-              removeSelectedImage
-            }
-            className="
-              flex
-              h-8
-              w-8
-              shrink-0
-              items-center
-              justify-center
-              rounded-lg
-              text-gray-400
-              transition
-              hover:bg-gray-200
-              hover:text-gray-700
-            "
+            onClick={clearImage}
+            aria-label="Remove image"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-gray-400 transition hover:bg-gray-200 hover:text-gray-700"
           >
             <X size={16} />
           </button>
         </div>
       )}
 
-      <div
-        className="
-          flex
-          items-center
-          gap-3
-          rounded-2xl
-          border
-          border-gray-200
-          bg-gray-50
-          px-4
-          py-2
-          transition
-          focus-within:border-blue-400
-          focus-within:bg-white
-        "
-      >
+      {notice && (
+        <p role="alert" className="mb-2 text-xs text-red-600">
+          {notice}
+        </p>
+      )}
+
+      <div className="flex items-center gap-3 rounded-2xl border border-gray-200 bg-gray-50 px-4 py-2 transition focus-within:border-blue-400 focus-within:bg-white">
         <button
           type="button"
-          onClick={openFilePicker}
-          disabled={uploading}
-          className="
-            text-gray-400
-            transition
-            hover:text-blue-500
-            disabled:cursor-not-allowed
-            disabled:opacity-50
-          "
+          onClick={() => fileInputRef.current?.click()}
+          aria-label="Attach an image"
+          className="text-gray-400 transition hover:text-blue-500"
         >
           <Paperclip size={20} />
         </button>
 
         <input
+          ref={inputRef}
           value={message}
-          onChange={(e) =>
-            setMessage(
-              e.target.value
-            )
-          }
-          onKeyDown={(e) => {
+          onChange={(event) => setMessage(event.target.value)}
+          onKeyDown={(event) => {
             if (
-              e.key === "Enter" &&
-              !e.shiftKey
+              event.key === "Enter" &&
+              !event.shiftKey &&
+              !event.nativeEvent.isComposing
             ) {
-              e.preventDefault();
+              event.preventDefault();
               handleSend();
             }
           }}
+          aria-label="Message"
+          maxLength={2000}
           placeholder={
-            uploading
-              ? "Uploading..."
-              : replyingTo
-                ? "Write a reply..."
-                : "Message the lobby..."
+            replyingTo ? "Write a reply..." : "Message the lobby..."
           }
-          disabled={uploading}
-          className="
-  min-w-0
-  flex-1
-  bg-transparent
-  text-base
-  outline-none
-  disabled:opacity-50
-  sm:text-sm
-"
+          className="min-w-0 flex-1 bg-transparent text-base outline-none sm:text-sm"
         />
 
         <button
           type="button"
-          className="
-            text-gray-400
-            transition
-            hover:text-blue-500
-          "
-        >
-          <Smile size={20} />
-        </button>
-
-        <button
-          type="button"
           onClick={handleSend}
-          disabled={
-            uploading ||
-            (!message.trim() &&
-              !selectedImage)
-          }
-          className="
-            flex
-            h-9
-            w-9
-            items-center
-            justify-center
-            rounded-xl
-            bg-blue-600
-            text-white
-            transition
-            hover:bg-blue-700
-            disabled:cursor-not-allowed
-            disabled:opacity-50
-          "
+          disabled={!canSend}
+          aria-label="Send message"
+          className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
         >
           <Send size={17} />
         </button>
