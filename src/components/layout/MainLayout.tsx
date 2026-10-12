@@ -1,11 +1,13 @@
 "use client";
 
 import { ReactNode } from "react";
+import { usePathname } from "next/navigation";
 import { User } from "@supabase/supabase-js";
 
 import Navbar from "./Navbar";
 import Sidebar from "./Sidebar";
 import RightSidebar from "./RightSidebar";
+import BottomTabBar, { shouldShowTabBar } from "./BottomTabBar";
 
 interface Props {
   children: ReactNode;
@@ -16,6 +18,9 @@ export default function MainLayout({
   children,
   user,
 }: Props) {
+  const pathname = usePathname();
+  const showTabBar = shouldShowTabBar(pathname);
+
   return (
     <div className="min-h-screen bg-canvas">
       <Navbar user={user} />
@@ -26,8 +31,14 @@ export default function MainLayout({
           <Sidebar />
         </div>
 
-        {/* Main content */}
-        <main className="min-h-[calc(100vh-50px)] min-w-0 flex-1">
+        {/* Main content (extra bottom room on phones for the tab bar) */}
+        <main
+          className={`min-h-[calc(100vh-50px)] min-w-0 flex-1 ${
+            showTabBar
+              ? "pb-[calc(5rem+env(safe-area-inset-bottom))] md:pb-0"
+              : ""
+          }`}
+        >
           {children}
         </main>
 
@@ -36,6 +47,9 @@ export default function MainLayout({
           <RightSidebar />
         </div>
       </div>
+
+      {/* Phone navigation */}
+      <BottomTabBar userId={user.id} />
     </div>
   );
 }
