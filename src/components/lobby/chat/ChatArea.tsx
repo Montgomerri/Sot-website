@@ -35,6 +35,8 @@ interface Props {
   onRetry: (id: string) => void;
   onDiscard: (id: string) => void;
 
+  onlineCount: number;
+
   onOpenChannels: () => void;
   onOpenMembers: () => void;
 }
@@ -55,6 +57,7 @@ export default function ChatArea({
   onDelete,
   onRetry,
   onDiscard,
+  onlineCount,
   onOpenChannels,
   onOpenMembers,
 }: Props) {
@@ -70,6 +73,7 @@ export default function ChatArea({
   return (
     <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-white">
       <ChatHeader
+        onlineCount={onlineCount}
         onOpenChannels={onOpenChannels}
         onOpenMembers={onOpenMembers}
       />

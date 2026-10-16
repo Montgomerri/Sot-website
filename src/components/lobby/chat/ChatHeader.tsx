@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowLeft, Menu, Users } from "lucide-react";
 
 interface Props {
+  onlineCount: number;
   onOpenChannels: () => void;
   onOpenMembers: () => void;
 }
@@ -12,6 +13,7 @@ const iconButton =
   "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-gray-500 transition hover:bg-gray-100 hover:text-gray-900";
 
 export default function ChatHeader({
+  onlineCount,
   onOpenChannels,
   onOpenMembers,
 }: Props) {
@@ -42,8 +44,15 @@ export default function ChatHeader({
           General Lobby
         </h2>
 
-        <p className="truncate text-[11px] text-gray-500 sm:text-xs">
-          Community discussion
+        <p className="flex items-center gap-1.5 truncate text-[11px] text-gray-500 sm:text-xs">
+          {onlineCount > 0 ? (
+            <>
+              <span className="h-2 w-2 shrink-0 rounded-full bg-emerald-500" />
+              {onlineCount} online
+            </>
+          ) : (
+            "Community discussion"
+          )}
         </p>
       </div>
 

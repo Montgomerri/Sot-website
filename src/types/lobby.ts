@@ -14,6 +14,9 @@ export interface LobbyMessage {
   /** Only set while a message hasn't been confirmed by the server yet */
   status?: "sending" | "failed";
 
+  /** Stable React key: stays the same when a sent message gets its real id */
+  clientKey?: string;
+
   profiles?: LobbyProfile | null;
 
   reply_to?: {

@@ -787,62 +787,7 @@ export default function SignupForm() {
               Don&apos;t worry! It&apos;s completely free!
             </p>
 
-            {/* Social buttons */}
-            <div className="social-row">
-              <button
-                type="button"
-                className="social-button"
-                aria-label="Continue with Microsoft"
-              >
-                <svg
-                  className="social-icon"
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                >
-                  <rect x="2" y="2" width="9" height="9" fill="#f25022" />
-                  <rect x="13" y="2" width="9" height="9" fill="#7fba00" />
-                  <rect x="2" y="13" width="9" height="9" fill="#00a4ef" />
-                  <rect x="13" y="13" width="9" height="9" fill="#ffb900" />
-                </svg>
-
-                <span>Continue with Microsoft</span>
-              </button>
-
-              <button
-                type="button"
-                className="social-button"
-                aria-label="Continue with Google"
-              >
-                <svg
-                  className="social-icon"
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                >
-                  <path
-                    fill="#4285F4"
-                    d="M23.49 12.27c0-.79-.07-1.55-.2-2.27H12v4.3h6.45a5.51 5.51 0 0 1-2.39 3.62v3h3.87c2.27-2.09 3.56-5.17 3.56-8.65Z"
-                  />
-                  <path
-                    fill="#34A853"
-                    d="M12 24c3.24 0 5.95-1.07 7.93-2.91l-3.87-3c-1.07.72-2.44 1.15-4.06 1.15-3.12 0-5.77-2.11-6.72-4.95H1.28v3.09A12 12 0 0 0 12 24Z"
-                  />
-                  <path
-                    fill="#FBBC05"
-                    d="M5.28 14.29A7.19 7.19 0 0 1 4.9 12c0-.79.14-1.57.38-2.29V6.62H1.28A12 12 0 0 0 0 12c0 1.94.46 3.78 1.28 5.38l4-3.09Z"
-                  />
-                  <path
-                    fill="#EA4335"
-                    d="M12 4.76c1.76 0 3.34.61 4.58 1.81l3.43-3.43C17.94 1.07 15.24 0 12 0A12 12 0 0 0 1.28 6.62l4 3.09C6.23 6.87 8.88 4.76 12 4.76Z"
-                  />
-                </svg>
-
-                <span>Continue with Google</span>
-              </button>
-            </div>
-
-            <div className="divider">
-              <span>OR</span>
-            </div>
+            
 
             <form onSubmit={handleSignup} className="signup-form">
               {/* Errors */}
@@ -925,7 +870,7 @@ export default function SignupForm() {
 
               {/* Terms */}
               <p className="terms-text">
-                By completing signup, you agree to the Asknet Terms of
+                By completing signup, you agree to our Terms of
                 Service and Privacy Policy, and confirm that the
                 information you provide is accurate.
               </p>

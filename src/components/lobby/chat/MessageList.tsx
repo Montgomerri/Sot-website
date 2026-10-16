@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  Fragment,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -8,6 +9,7 @@ import {
   useState,
 } from "react";
 import { ArrowDown } from "lucide-react";
+import { format, isThisYear, isToday, isYesterday } from "date-fns";
 
 import MessageBubble from "./MessageBubble";
 
@@ -37,6 +39,24 @@ interface Props {
 }
 
 const NEAR_BOTTOM_PX = 100;
+
+/** Messages from the same person within this time are grouped together */
+const GROUP_WINDOW_MS = 5 * 60 * 1000;
+
+function sameDay(a: Date, b: Date) {
+  return (
+    a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate()
+  );
+}
+
+function dayLabel(date: Date) {
+  if (isToday(date)) return "Today";
+  if (isYesterday(date)) return "Yesterday";
+
+  return format(date, isThisYear(date) ? "EEEE, d MMMM" : "d MMMM yyyy");
+}
 
 function MessageSkeleton() {
   return (
@@ -228,6 +248,21 @@ export default function MessageList({
 
   return (
     <div className="relative min-h-0 min-w-0 flex-1 overflow-hidden">
+      <style>{`
+        @keyframes lobbyMessageIn {
+          from { opacity: 0; transform: translateY(6px); }
+          to { opacity: 1; transform: none; }
+        }
+
+        .lobby-message-in {
+          animation: lobbyMessageIn 0.25s ease-out;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .lobby-message-in { animation: none; }
+        }
+      `}</style>
+
       <div
         ref={containerRef}
         onScroll={handleScroll}
@@ -276,40 +311,84 @@ export default function MessageList({
                 </p>
               )}
 
-              {messages.map((message) => (
-                <div
-                  key={message.id}
-                  data-message-id={message.id}
-                  className={`min-w-0 transition-colors duration-700 ${
-                    highlightedId === message.id ? "bg-amber-100/70" : ""
-                  }`}
-                >
-                  <MessageBubble
-                    id={message.id}
-                    userId={message.user_id}
-                    currentUserId={currentUserId}
-                    name={message.profiles?.full_name ?? "User"}
-                    message={message.content}
-                    imageUrl={message.image_url}
-                    status={message.status}
-                    time={new Date(message.created_at).toLocaleTimeString(
-                      [],
-                      { hour: "2-digit", minute: "2-digit" }
+              {messages.map((message, index) => {
+                const date = new Date(message.created_at);
+
+                const previous =
+                  index > 0 ? messages[index - 1] : null;
+
+                const previousDate = previous
+                  ? new Date(previous.created_at)
+                  : null;
+
+                const newDay =
+                  !previousDate || !sameDay(date, previousDate);
+
+                // Same person, close in time, not a reply: group them
+                const grouped =
+                  !newDay &&
+                  !!previous &&
+                  !!previousDate &&
+                  previous.user_id === message.user_id &&
+                  !message.reply_to &&
+                  date.getTime() - previousDate.getTime() <
+                    GROUP_WINDOW_MS;
+
+                return (
+                  <Fragment key={message.clientKey ?? message.id}>
+                    {newDay && (
+                      <div
+                        role="separator"
+                        className="flex items-center gap-3 px-3 pb-1 pt-4 sm:px-6"
+                      >
+                        <div className="h-px flex-1 bg-gray-200" />
+
+                        <span className="rounded-full bg-gray-100 px-3 py-0.5 text-[11px] font-medium text-gray-500">
+                          {dayLabel(date)}
+                        </span>
+
+                        <div className="h-px flex-1 bg-gray-200" />
+                      </div>
                     )}
-                    replyTo={message.reply_to ?? null}
-                    reactions={reactions[message.id] ?? []}
-                    onToggleReaction={(emoji) =>
-                      onToggleReaction(message.id, emoji)
-                    }
-                    onEdit={onEdit}
-                    onDelete={onDelete}
-                    onReply={onReply}
-                    onJumpToMessage={jumpToMessage}
-                    onRetry={onRetry}
-                    onDiscard={onDiscard}
-                  />
-                </div>
-              ))}
+
+                    <div
+                      data-message-id={message.id}
+                      className={`lobby-message-in min-w-0 transition-colors duration-700 ${
+                        highlightedId === message.id
+                          ? "bg-amber-100/70"
+                          : ""
+                      }`}
+                    >
+                      <MessageBubble
+                        id={message.id}
+                        userId={message.user_id}
+                        currentUserId={currentUserId}
+                        name={message.profiles?.full_name ?? "User"}
+                        avatarUrl={message.profiles?.avatar_url}
+                        message={message.content}
+                        imageUrl={message.image_url}
+                        grouped={grouped}
+                        status={message.status}
+                        time={date.toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                        replyTo={message.reply_to ?? null}
+                        reactions={reactions[message.id] ?? []}
+                        onToggleReaction={(emoji) =>
+                          onToggleReaction(message.id, emoji)
+                        }
+                        onEdit={onEdit}
+                        onDelete={onDelete}
+                        onReply={onReply}
+                        onJumpToMessage={jumpToMessage}
+                        onRetry={onRetry}
+                        onDiscard={onDiscard}
+                      />
+                    </div>
+                  </Fragment>
+                );
+              })}
             </>
           )}
         </div>
@@ -320,7 +399,7 @@ export default function MessageList({
         <button
           type="button"
           onClick={() => scrollToBottom("smooth")}
-          className="absolute bottom-5 left-1/2 z-20 -translate-x-1/2 rounded-full border border-gray-200 bg-white px-4 py-2 text-xs font-medium text-gray-700 shadow-md transition hover:bg-gray-50"
+          className="absolute bottom-5 left-1/2 z-20 -translate-x-1/2 rounded-full bg-brand-600 px-4 py-2 text-xs font-medium text-white shadow-md transition hover:bg-brand-700"
         >
           New messages
         </button>

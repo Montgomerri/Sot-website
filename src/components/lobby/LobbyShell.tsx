@@ -7,6 +7,7 @@ import ChatArea from "./chat/ChatArea";
 import MemberSidebar from "./MemberSidebar";
 
 import useLobby from "@/hooks/useLobby";
+import useLobbyMembers from "@/hooks/useLobbyMembers";
 import useLobbyReactions from "@/hooks/useLobbyReactions";
 
 export default function LobbyShell() {
@@ -30,6 +31,8 @@ export default function LobbyShell() {
     messages,
     currentUserId
   );
+
+  const members = useLobbyMembers(currentUserId);
 
   const [mobileSidebar, setMobileSidebar] = useState<
     "channels" | "members" | null
@@ -66,13 +69,21 @@ export default function LobbyShell() {
         onDelete={deleteMessage}
         onRetry={retryMessage}
         onDiscard={discardMessage}
+        onlineCount={members.onlineCount}
         onOpenChannels={() => setMobileSidebar("channels")}
         onOpenMembers={() => setMobileSidebar("members")}
       />
 
       {/* Desktop member sidebar */}
       <div className="hidden shrink-0 lg:block">
-        <MemberSidebar />
+        <MemberSidebar
+          online={members.online}
+          offline={members.offline}
+          total={members.total}
+          onlineCount={members.onlineCount}
+          loading={members.loading}
+          currentUserId={currentUserId}
+        />
       </div>
 
       {/* Mobile backdrop */}
@@ -103,7 +114,7 @@ export default function LobbyShell() {
 
       {/* Mobile member drawer */}
       {mobileSidebar === "members" && (
-        <aside className="fixed inset-y-0 right-0 z-50 w-[min(20rem,88vw)] overflow-y-auto border-l border-gray-200 bg-[#F8FAFC] shadow-2xl lg:hidden">
+        <aside className="fixed inset-y-0 right-0 z-50 w-[min(20rem,88vw)] border-l border-gray-200 bg-white shadow-2xl lg:hidden">
           <button
             type="button"
             onClick={closeMobileSidebar}
@@ -113,7 +124,14 @@ export default function LobbyShell() {
             ×
           </button>
 
-          <MemberSidebar />
+          <MemberSidebar
+            online={members.online}
+            offline={members.offline}
+            total={members.total}
+            onlineCount={members.onlineCount}
+            loading={members.loading}
+            currentUserId={currentUserId}
+          />
         </aside>
       )}
     </div>

@@ -434,6 +434,7 @@ export default function useLobby() {
 
       const optimistic: LobbyMessage = {
         id: tmpId,
+        clientKey: tmpId,
         user_id: userId,
         content,
         created_at: new Date().toISOString(),

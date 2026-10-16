@@ -50,8 +50,8 @@ export default function ReactionBar({ reactions, onToggle }: Props) {
           onClick={() => onToggle(reaction.emoji)}
           className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs transition ${
             reaction.reactedByCurrentUser
-              ? "border-blue-300 bg-blue-50 text-blue-700"
-              : "border-gray-200 bg-white text-gray-600 hover:border-blue-200 hover:bg-blue-50"
+              ? "border-brand-300 bg-brand-50 text-brand-700"
+              : "border-gray-200 bg-white text-gray-600 hover:border-brand-200 hover:bg-brand-50"
           }`}
         >
           <span>{reaction.emoji}</span>
@@ -65,7 +65,7 @@ export default function ReactionBar({ reactions, onToggle }: Props) {
           onClick={() => setOpen((value) => !value)}
           aria-label="Add reaction"
           aria-expanded={open}
-          className="flex h-7 w-7 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-400 transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-600"
+          className="flex h-7 w-7 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-400 transition hover:border-brand-200 hover:bg-brand-50 hover:text-brand-700"
         >
           <Plus size={14} />
         </button>

@@ -38,6 +38,12 @@ export default function MessageInput({
     imageRef.current = image;
   }, [image]);
 
+  // Start typing straight away after choosing a message to reply to
+  // (works for the menu and for swipe to reply)
+  useEffect(() => {
+    if (replyingTo) inputRef.current?.focus();
+  }, [replyingTo]);
+
   // Release the preview when leaving the page
   useEffect(() => {
     return () => {
@@ -109,9 +115,9 @@ export default function MessageInput({
 
       {/* Reply preview */}
       {replyingTo && (
-        <div className="mb-3 flex items-center justify-between rounded-xl border border-gray-200 bg-gray-50 px-3 py-2">
+        <div className="mb-3 flex items-center justify-between rounded-xl border border-gray-200 border-l-4 border-l-brand-500 bg-gray-50 px-3 py-2">
           <div className="min-w-0">
-            <p className="text-xs font-semibold text-blue-600">
+            <p className="text-xs font-semibold text-brand-700">
               Replying to {replyingTo.profiles?.full_name ?? "User"}
             </p>
 
@@ -168,12 +174,12 @@ export default function MessageInput({
         </p>
       )}
 
-      <div className="flex items-center gap-3 rounded-2xl border border-gray-200 bg-gray-50 px-4 py-2 transition focus-within:border-blue-400 focus-within:bg-white">
+      <div className="flex items-center gap-3 rounded-2xl border border-gray-200 bg-gray-50 px-4 py-2 transition focus-within:border-brand-500 focus-within:bg-white">
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
           aria-label="Attach an image"
-          className="text-gray-400 transition hover:text-blue-500"
+          className="text-gray-400 transition hover:text-brand-600"
         >
           <Paperclip size={20} />
         </button>
@@ -205,7 +211,7 @@ export default function MessageInput({
           onClick={handleSend}
           disabled={!canSend}
           aria-label="Send message"
-          className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+          className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-600 text-white transition hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-50"
         >
           <Send size={17} />
         </button>
