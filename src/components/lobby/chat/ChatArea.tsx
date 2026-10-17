@@ -1,15 +1,21 @@
 "use client";
 
 import { useState } from "react";
+import { Lock } from "lucide-react";
 
 import ChatHeader from "./ChatHeader";
 import MessageList from "./MessageList";
 import MessageInput from "./MessageInput";
 
 import type { ReactionSummary } from "@/hooks/useLobbyReactions";
-import type { LobbyMessage } from "@/types/lobby";
+import type { LobbyChannel, LobbyMessage } from "@/types/lobby";
 
 interface Props {
+  channel: LobbyChannel;
+
+  /** False in admin-only channels for everyone who isn't an admin */
+  canPost: boolean;
+
   messages: LobbyMessage[];
   currentUserId: string | null;
 
@@ -42,6 +48,8 @@ interface Props {
 }
 
 export default function ChatArea({
+  channel,
+  canPost,
   messages,
   currentUserId,
   loading,
@@ -73,6 +81,7 @@ export default function ChatArea({
   return (
     <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-white">
       <ChatHeader
+        channel={channel}
         onlineCount={onlineCount}
         onOpenChannels={onOpenChannels}
         onOpenMembers={onOpenMembers}
@@ -91,16 +100,28 @@ export default function ChatArea({
         onToggleReaction={onToggleReaction}
         onEdit={onEdit}
         onDelete={onDelete}
-        onReply={setReplyingTo}
+        onReply={canPost ? setReplyingTo : () => {}}
         onRetry={onRetry}
         onDiscard={onDiscard}
       />
 
-      <MessageInput
-        sendMessage={handleSendMessage}
-        replyingTo={replyingTo}
-        onCancelReply={() => setReplyingTo(null)}
-      />
+      {canPost ? (
+        <MessageInput
+          sendMessage={handleSendMessage}
+          replyingTo={replyingTo}
+          channelName={channel.name}
+          onCancelReply={() => setReplyingTo(null)}
+        />
+      ) : (
+        <div className="relative z-30 flex shrink-0 items-center justify-center gap-2 border-t border-gray-200 bg-gray-50 px-4 py-4 text-center text-sm text-gray-500">
+          <Lock size={14} className="shrink-0" />
+
+          <span>
+            Only admins can post in {channel.name}. You can still react to
+            messages.
+          </span>
+        </div>
+      )}
     </main>
   );
 }

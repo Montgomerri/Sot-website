@@ -13,6 +13,9 @@ interface Props {
 
   replyingTo: LobbyMessage | null;
 
+  /** Shown in the placeholder: "Message Programming..." */
+  channelName: string;
+
   onCancelReply: () => void;
 }
 
@@ -24,6 +27,7 @@ interface SelectedImage {
 export default function MessageInput({
   sendMessage,
   replyingTo,
+  channelName,
   onCancelReply,
 }: Props) {
   const [message, setMessage] = useState("");
@@ -201,7 +205,7 @@ export default function MessageInput({
           aria-label="Message"
           maxLength={2000}
           placeholder={
-            replyingTo ? "Write a reply..." : "Message the lobby..."
+            replyingTo ? "Write a reply..." : `Message ${channelName}...`
           }
           className="min-w-0 flex-1 bg-transparent text-base outline-none sm:text-sm"
         />

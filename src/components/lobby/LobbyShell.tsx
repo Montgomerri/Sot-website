@@ -1,38 +1,29 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 
 import ChannelSidebar from "./ChannelSidebar";
-import ChatArea from "./chat/ChatArea";
+import LobbyChat from "./LobbyChat";
 import MemberSidebar from "./MemberSidebar";
 
-import useLobby from "@/hooks/useLobby";
+import useLobbyChannels from "@/hooks/useLobbyChannels";
 import useLobbyMembers from "@/hooks/useLobbyMembers";
-import useLobbyReactions from "@/hooks/useLobbyReactions";
 
 export default function LobbyShell() {
-  const {
-    messages,
-    currentUserId,
-    loading,
-    loadError,
-    reload,
-    hasMore,
-    loadingOlder,
-    loadOlder,
-    sendMessage,
-    retryMessage,
-    discardMessage,
-    editMessage,
-    deleteMessage,
-  } = useLobby();
+  const { channels, userId, isAdmin, loading, error } = useLobbyChannels();
 
-  const { summaries, toggleReaction } = useLobbyReactions(
-    messages,
-    currentUserId
+  const members = useLobbyMembers(userId);
+
+  // Which channel is open comes from the address (?channel=programming),
+  // so refreshing keeps you where you were and links can point to a channel.
+  // (The page shows a loading screen first, so reading the address here
+  // can't cause a server/browser mismatch.)
+  const [activeSlug, setActiveSlug] = useState<string | null>(() =>
+    typeof window === "undefined"
+      ? null
+      : new URLSearchParams(window.location.search).get("channel")
   );
-
-  const members = useLobbyMembers(currentUserId);
 
   const [mobileSidebar, setMobileSidebar] = useState<
     "channels" | "members" | null
@@ -42,6 +33,59 @@ export default function LobbyShell() {
     setMobileSidebar(null);
   }
 
+  function selectChannel(id: string) {
+    const channel = channels.find((item) => item.id === id);
+
+    if (channel) {
+      setActiveSlug(channel.slug);
+
+      window.history.replaceState(null, "", `?channel=${channel.slug}`);
+    }
+
+    closeMobileSidebar();
+  }
+
+  // The channel in the address, or the first one (Lobby)
+  const activeChannel =
+    channels.find((channel) => channel.slug === activeSlug) ??
+    channels[0] ??
+    null;
+
+  const canPost =
+    !!activeChannel && (!activeChannel.admin_only || isAdmin);
+
+  if (loading) {
+    return (
+      <div
+        className="fixed inset-0 flex items-center justify-center bg-white text-sm text-gray-500"
+        style={{ height: "100dvh" }}
+      >
+        Loading the Lobby...
+      </div>
+    );
+  }
+
+  if (error || !activeChannel) {
+    return (
+      <div
+        className="fixed inset-0 flex flex-col items-center justify-center gap-3 bg-white px-6 text-center"
+        style={{ height: "100dvh" }}
+      >
+        <p className="max-w-sm text-sm text-gray-600">
+          The Lobby channels aren&apos;t available yet. If you&apos;re the
+          site owner, run the channels SQL in Supabase and refresh.
+        </p>
+
+        <Link
+          href="/dashboard"
+          className="rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+        >
+          Back to Asknet
+        </Link>
+      </div>
+    );
+  }
+
   return (
     <div
       className="fixed inset-0 flex w-full overflow-hidden bg-white"
@@ -49,26 +93,18 @@ export default function LobbyShell() {
     >
       {/* Desktop channel sidebar */}
       <div className="hidden shrink-0 md:block">
-        <ChannelSidebar />
+        <ChannelSidebar
+          channels={channels}
+          activeId={activeChannel.id}
+          onSelect={selectChannel}
+        />
       </div>
 
-      {/* Main chat */}
-      <ChatArea
-        messages={messages}
-        currentUserId={currentUserId}
-        loading={loading}
-        loadError={loadError}
-        onRetryLoad={reload}
-        hasMore={hasMore}
-        loadingOlder={loadingOlder}
-        onLoadOlder={loadOlder}
-        sendMessage={sendMessage}
-        reactions={summaries}
-        onToggleReaction={toggleReaction}
-        onEdit={editMessage}
-        onDelete={deleteMessage}
-        onRetry={retryMessage}
-        onDiscard={discardMessage}
+      {/* Main chat (a new key gives each channel a fresh start) */}
+      <LobbyChat
+        key={activeChannel.id}
+        channel={activeChannel}
+        canPost={canPost}
         onlineCount={members.onlineCount}
         onOpenChannels={() => setMobileSidebar("channels")}
         onOpenMembers={() => setMobileSidebar("members")}
@@ -82,7 +118,7 @@ export default function LobbyShell() {
           total={members.total}
           onlineCount={members.onlineCount}
           loading={members.loading}
-          currentUserId={currentUserId}
+          currentUserId={userId}
         />
       </div>
 
@@ -108,7 +144,11 @@ export default function LobbyShell() {
             ×
           </button>
 
-          <ChannelSidebar />
+          <ChannelSidebar
+            channels={channels}
+            activeId={activeChannel.id}
+            onSelect={selectChannel}
+          />
         </aside>
       )}
 
@@ -130,7 +170,7 @@ export default function LobbyShell() {
             total={members.total}
             onlineCount={members.onlineCount}
             loading={members.loading}
-            currentUserId={currentUserId}
+            currentUserId={userId}
           />
         </aside>
       )}

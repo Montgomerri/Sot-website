@@ -59,7 +59,7 @@ function mergeLatest(current: LobbyMessage[], latest: LobbyMessage[]) {
   return [...merged, ...pending];
 }
 
-export default function useLobby() {
+export default function useLobby(channelId: string) {
   const [messages, setMessages] = useState<LobbyMessage[]>([]);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
@@ -85,6 +85,7 @@ export default function useLobby() {
   const fetchLatest = useCallback(
     async (isInitial: boolean, limit?: number) => {
       const { messages: latest, hasMore: more } = await getLobbyMessages({
+        channelId,
         limit,
         known: messagesRef.current,
       });
@@ -93,7 +94,7 @@ export default function useLobby() {
 
       if (isInitial) setHasMore(more);
     },
-    []
+    [channelId]
   );
 
   const reload = useCallback(async () => {
@@ -121,6 +122,7 @@ export default function useLobby() {
 
     try {
       const { messages: older, hasMore: more } = await getLobbyMessages({
+        channelId,
         before: oldest.created_at,
         known: messagesRef.current,
       });
@@ -137,7 +139,7 @@ export default function useLobby() {
       loadingOlderRef.current = false;
       setLoadingOlder(false);
     }
-  }, []);
+  }, [channelId]);
 
   // -----------------------------------------
   // REALTIME
@@ -183,6 +185,8 @@ export default function useLobby() {
       new: Record<string, unknown>;
     }) {
       const row = payload.new as unknown as LobbyRow;
+
+      if (row.channel_id !== channelId) return;
 
       if (messagesRef.current.some((m) => m.id === row.id)) return;
 
@@ -285,15 +289,25 @@ export default function useLobby() {
       });
 
       channel = supabase
-        .channel("lobby-room")
+        .channel(`lobby-room-${channelId}`)
         .on(
           "postgres_changes",
-          { event: "INSERT", schema: "public", table: "lobby_messages" },
+          {
+            event: "INSERT",
+            schema: "public",
+            table: "lobby_messages",
+            filter: `channel_id=eq.${channelId}`,
+          },
           handleInsert
         )
         .on(
           "postgres_changes",
-          { event: "UPDATE", schema: "public", table: "lobby_messages" },
+          {
+            event: "UPDATE",
+            schema: "public",
+            table: "lobby_messages",
+            filter: `channel_id=eq.${channelId}`,
+          },
           handleUpdate
         )
         .on(
@@ -349,7 +363,7 @@ export default function useLobby() {
       blobUrls.forEach((url) => URL.revokeObjectURL(url));
       blobUrls.clear();
     };
-  }, [fetchLatest, reload]);
+  }, [fetchLatest, reload, channelId]);
 
   // -----------------------------------------
   // SEND (optimistic: shows instantly)
@@ -374,6 +388,7 @@ export default function useLobby() {
 
       const row = await sendLobbyMessage({
         userId,
+        channelId,
         content: job.content,
         imageUrl,
         replyToId: job.replyToId,
@@ -408,7 +423,7 @@ export default function useLobby() {
         )
       );
     }
-  }, []);
+  }, [channelId]);
 
   const sendMessage = useCallback(
     async (
@@ -434,6 +449,7 @@ export default function useLobby() {
 
       const optimistic: LobbyMessage = {
         id: tmpId,
+        channel_id: channelId,
         clientKey: tmpId,
         user_id: userId,
         content,
@@ -456,7 +472,7 @@ export default function useLobby() {
 
       await deliver(tmpId);
     },
-    [deliver]
+    [deliver, channelId]
   );
 
   const retryMessage = useCallback(

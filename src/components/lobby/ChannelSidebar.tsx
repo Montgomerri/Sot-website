@@ -1,54 +1,35 @@
 "use client";
 
 import {
-  BookOpen,
   Code2,
-  FileText,
-  Link2,
+  Hash,
+  Lock,
   Megaphone,
   MessageCircle,
   Shuffle,
   type LucideIcon,
 } from "lucide-react";
 
-interface SidebarEntry {
-  name: string;
-  icon: LucideIcon;
-  active?: boolean;
+import type { LobbyChannel } from "@/types/lobby";
+
+interface Props {
+  channels: LobbyChannel[];
+  activeId: string | null;
+  onSelect: (id: string) => void;
 }
 
-const communityItems: SidebarEntry[] = [
-  { name: "Lobby", icon: MessageCircle, active: true },
-  { name: "Announcements", icon: Megaphone },
-  { name: "Programming", icon: Code2 },
-  { name: "Random", icon: Shuffle },
-];
+const CHANNEL_ICONS: Record<string, LucideIcon> = {
+  lobby: MessageCircle,
+  announcements: Megaphone,
+  programming: Code2,
+  random: Shuffle,
+};
 
-const resourceItems: SidebarEntry[] = [
-  { name: "Courses", icon: BookOpen },
-  { name: "Documents", icon: FileText },
-  { name: "Useful Links", icon: Link2 },
-];
-
-function SidebarItem({ item }: { item: SidebarEntry }) {
-  const Icon = item.icon;
-
-  return (
-    <button
-      type="button"
-      className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm transition-all ${
-        item.active
-          ? "bg-brand-100 font-semibold text-brand-800"
-          : "text-gray-600 hover:bg-brand-50 hover:text-brand-700"
-      }`}
-    >
-      <Icon size={18} />
-      {item.name}
-    </button>
-  );
-}
-
-export default function ChannelSidebar() {
+export default function ChannelSidebar({
+  channels,
+  activeId,
+  onSelect,
+}: Props) {
   return (
     <aside className="w-72 border-r border-gray-200 bg-white px-4 py-6">
       <div className="mb-8 flex items-center gap-3 px-3">
@@ -62,25 +43,42 @@ export default function ChannelSidebar() {
         </div>
       </div>
 
-      <div className="space-y-1">
+      <nav aria-label="Channels" className="space-y-1">
         <h3 className="mb-3 px-3 text-xs font-semibold uppercase text-gray-400">
-          Community
+          Channels
         </h3>
 
-        {communityItems.map((item) => (
-          <SidebarItem key={item.name} item={item} />
-        ))}
-      </div>
+        {channels.map((channel) => {
+          const Icon = CHANNEL_ICONS[channel.slug] ?? Hash;
+          const active = channel.id === activeId;
 
-      <div className="mt-8 space-y-1">
-        <h3 className="mb-3 px-3 text-xs font-semibold uppercase text-gray-400">
-          Resources
-        </h3>
+          return (
+            <button
+              key={channel.id}
+              type="button"
+              onClick={() => onSelect(channel.id)}
+              aria-current={active ? "page" : undefined}
+              className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm transition-all ${
+                active
+                  ? "bg-brand-100 font-semibold text-brand-800"
+                  : "text-gray-600 hover:bg-brand-50 hover:text-brand-700"
+              }`}
+            >
+              <Icon size={18} className="shrink-0" />
 
-        {resourceItems.map((item) => (
-          <SidebarItem key={item.name} item={item} />
-        ))}
-      </div>
+              <span className="truncate">{channel.name}</span>
+
+              {channel.admin_only && (
+                <Lock
+                  size={13}
+                  className="ml-auto shrink-0 text-gray-400"
+                  aria-label="Only admins can post"
+                />
+              )}
+            </button>
+          );
+        })}
+      </nav>
     </aside>
   );
 }

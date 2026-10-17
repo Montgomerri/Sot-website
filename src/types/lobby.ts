@@ -14,6 +14,8 @@ export interface LobbyMessage {
   /** Only set while a message hasn't been confirmed by the server yet */
   status?: "sending" | "failed";
 
+  channel_id?: string;
+
   /** Stable React key: stays the same when a sent message gets its real id */
   clientKey?: string;
 
@@ -33,4 +35,13 @@ export interface LobbyReaction {
   user_id: string;
   emoji: string;
   created_at: string;
+}
+
+export interface LobbyChannel {
+  id: string;
+  slug: string;
+  name: string;
+  description: string | null;
+  admin_only: boolean;
+  sort_order: number;
 }

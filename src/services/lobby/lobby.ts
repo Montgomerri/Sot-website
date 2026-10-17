@@ -7,6 +7,7 @@ export const LOBBY_PAGE_SIZE = 50;
 
 export interface LobbyRow {
   id: string;
+  channel_id: string;
   user_id: string;
   content: string;
   created_at: string;
@@ -14,7 +15,8 @@ export interface LobbyRow {
   reply_to_id: string | null;
 }
 
-const COLUMNS = "id, user_id, content, created_at, image_url, reply_to_id";
+const COLUMNS =
+  "id, channel_id, user_id, content, created_at, image_url, reply_to_id";
 
 /* -----------------------------------------
    PROFILE CACHE
@@ -125,6 +127,7 @@ export async function hydrateLobbyRows(
 
     return {
       id: row.id,
+      channel_id: row.channel_id,
       user_id: row.user_id,
       content: row.content,
       created_at: row.created_at,
@@ -147,20 +150,25 @@ export async function hydrateLobbyRows(
    LOAD MESSAGES (newest page, or an older one)
 ----------------------------------------- */
 
-export async function getLobbyMessages(
-  options: {
-    before?: string;
-    limit?: number;
-    known?: LobbyMessage[];
-  } = {}
-): Promise<{ messages: LobbyMessage[]; hasMore: boolean }> {
-  const { before, limit = LOBBY_PAGE_SIZE, known = [] } = options;
+export async function getLobbyMessages(options: {
+  channelId: string;
+  before?: string;
+  limit?: number;
+  known?: LobbyMessage[];
+}): Promise<{ messages: LobbyMessage[]; hasMore: boolean }> {
+  const {
+    channelId,
+    before,
+    limit = LOBBY_PAGE_SIZE,
+    known = [],
+  } = options;
 
   const supabase = createClient();
 
   let query = supabase
     .from("lobby_messages")
     .select(COLUMNS)
+    .eq("channel_id", channelId)
     .order("created_at", { ascending: false })
     .limit(limit);
 
@@ -215,6 +223,7 @@ export async function uploadLobbyImage(
  */
 export async function sendLobbyMessage(input: {
   userId: string;
+  channelId: string;
   content: string;
   imageUrl?: string | null;
   replyToId?: string | null;
@@ -224,6 +233,7 @@ export async function sendLobbyMessage(input: {
   const { data, error } = await supabase
     .from("lobby_messages")
     .insert({
+      channel_id: input.channelId,
       user_id: input.userId,
       content: input.content,
       image_url: input.imageUrl ?? null,
