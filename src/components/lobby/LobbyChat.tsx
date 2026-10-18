@@ -11,6 +11,7 @@ interface Props {
   channel: LobbyChannel;
   canPost: boolean;
   onlineCount: number;
+  unreadElsewhere: number;
   onOpenChannels: () => void;
   onOpenMembers: () => void;
 }
@@ -23,6 +24,7 @@ export default function LobbyChat({
   channel,
   canPost,
   onlineCount,
+  unreadElsewhere,
   onOpenChannels,
   onOpenMembers,
 }: Props) {
@@ -67,6 +69,7 @@ export default function LobbyChat({
       onRetry={retryMessage}
       onDiscard={discardMessage}
       onlineCount={onlineCount}
+      unreadElsewhere={unreadElsewhere}
       onOpenChannels={onOpenChannels}
       onOpenMembers={onOpenMembers}
     />

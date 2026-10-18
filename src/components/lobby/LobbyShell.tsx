@@ -9,6 +9,7 @@ import MemberSidebar from "./MemberSidebar";
 
 import useLobbyChannels from "@/hooks/useLobbyChannels";
 import useLobbyMembers from "@/hooks/useLobbyMembers";
+import useLobbyUnread from "@/hooks/useLobbyUnread";
 
 export default function LobbyShell() {
   const { channels, userId, isAdmin, loading, error } = useLobbyChannels();
@@ -54,6 +55,15 @@ export default function LobbyShell() {
   const canPost =
     !!activeChannel && (!activeChannel.admin_only || isAdmin);
 
+  // Unread counts (the open channel is marked as read as you look at it)
+  const unread = useLobbyUnread(userId, activeChannel?.id ?? null);
+
+  const unreadElsewhere = Object.entries(unread.counts).reduce(
+    (sum, [channelId, count]) =>
+      channelId === activeChannel?.id ? sum : sum + count,
+    0
+  );
+
   if (loading) {
     return (
       <div
@@ -96,6 +106,7 @@ export default function LobbyShell() {
         <ChannelSidebar
           channels={channels}
           activeId={activeChannel.id}
+          unread={unread.counts}
           onSelect={selectChannel}
         />
       </div>
@@ -106,6 +117,7 @@ export default function LobbyShell() {
         channel={activeChannel}
         canPost={canPost}
         onlineCount={members.onlineCount}
+        unreadElsewhere={unreadElsewhere}
         onOpenChannels={() => setMobileSidebar("channels")}
         onOpenMembers={() => setMobileSidebar("members")}
       />
@@ -147,6 +159,7 @@ export default function LobbyShell() {
           <ChannelSidebar
             channels={channels}
             activeId={activeChannel.id}
+            unread={unread.counts}
             onSelect={selectChannel}
           />
         </aside>

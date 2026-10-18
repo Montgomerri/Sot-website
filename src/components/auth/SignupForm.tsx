@@ -7,185 +7,11 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
 /* ============================================================
-   ORBIT ARTWORK (right panel)
-   Drawn on one 460 x 420 board and scaled by the SVG viewBox,
-   so spacing stays identical at every screen size.
-============================================================ */
-
-const CX = 220;
-const CY = 210;
-
-const RINGS = [
-  { r: 204, opacity: 0.08 },
-  { r: 168, opacity: 0.15 },
-  { r: 116, opacity: 0.2 },
-  { r: 66, opacity: 0.26 },
-];
-
-type Person = {
-  id: number;
-  x: number;
-  y: number;
-  size: number;
-  bg: string;
-  skin: string;
-  hair: string;
-  shirt: string;
-};
-
-const PEOPLE: Person[] = [
-  { id: 1, x: 116, y: 78, size: 56, bg: "#efe6f7", skin: "#e0b08c", hair: "#6b4a3a", shirt: "#ffffff" },
-  { id: 2, x: 306, y: 131, size: 46, bg: "#f6ecd2", skin: "#8b5a3c", hair: "#241a16", shirt: "#2f3133" },
-  { id: 3, x: 173, y: 163, size: 42, bg: "#dff0e0", skin: "#a96c46", hair: "#3b2a22", shirt: "#f0ad18" },
-  { id: 4, x: 109, y: 250, size: 52, bg: "#e7e9ec", skin: "#a76b4a", hair: "#382d28", shirt: "#294a70" },
-  { id: 5, x: 282, y: 233, size: 44, bg: "#dcecf7", skin: "#805337", hair: "#161616", shirt: "#ffffff" },
-  { id: 6, x: 210, y: 326, size: 50, bg: "#f2e7dc", skin: "#b87751", hair: "#52382d", shirt: "#354d73" },
-  { id: 7, x: 286, y: 305, size: 48, bg: "#f5e3d3", skin: "#c48b69", hair: "#6d4b3a", shirt: "#c4572f" },
-];
-
-type OrbitTag = {
-  label: string;
-  x: number;
-  y: number;
-  w: number;
-  tone: "white" | "green";
-};
-
-const TAGS: OrbitTag[] = [
-  { label: "Website Design", x: 299, y: 62, w: 137, tone: "white" },
-  { label: "Crypto", x: 380, y: 158, w: 75, tone: "green" },
-  { label: "E-Commerce", x: 380, y: 262, w: 104, tone: "white" },
-  { label: "Automotive", x: 309, y: 353, w: 100, tone: "green" },
-  { label: "Ruby", x: 197, y: 376, w: 60, tone: "white" },
-  { label: "Golang", x: 108, y: 335, w: 76, tone: "green" },
-  { label: "Blockchain", x: 54, y: 187, w: 106, tone: "white" },
-];
-
-function Avatar({ p }: { p: Person }) {
-  const r = p.size / 2;
-  const clipId = `orbit-avatar-${p.id}`;
-
-  return (
-    <g transform={`translate(${p.x - r} ${p.y - r})`}>
-      <clipPath id={clipId}>
-        <circle cx={r} cy={r} r={r} />
-      </clipPath>
-
-      <g clipPath={`url(#${clipId})`} transform={`scale(${p.size / 48})`}>
-        <rect width="48" height="48" fill={p.bg} />
-        {/* shoulders */}
-        <path d="M8 48c1-9 7-14 16-14s15 5 16 14Z" fill={p.shirt} />
-        {/* neck */}
-        <rect x="20" y="25" width="8" height="11" rx="3" fill={p.skin} />
-        {/* head */}
-        <circle cx="24" cy="18" r="8.5" fill={p.skin} />
-        {/* hair */}
-        <path d="M15 18c1-9 17-11 18 0-2-3.5-5-5.5-9-5.5s-7 2-9 5.5Z" fill={p.hair} />
-      </g>
-
-      <circle
-        cx={r}
-        cy={r}
-        r={r - 0.75}
-        fill="none"
-        stroke="rgba(255,255,255,0.55)"
-        strokeWidth="1.5"
-      />
-    </g>
-  );
-}
-
-function OrbitArt() {
-  return (
-    <svg
-      viewBox="-10 0 460 420"
-      preserveAspectRatio="xMidYMid meet"
-      aria-hidden="true"
-      focusable="false"
-    >
-      <defs>
-        <radialGradient
-          id="orbit-glow"
-          cx={CX}
-          cy={CY}
-          r="92"
-          gradientUnits="userSpaceOnUse"
-        >
-          <stop offset="0" stopColor="#3fbf80" stopOpacity="0.22" />
-          <stop offset="1" stopColor="#3fbf80" stopOpacity="0" />
-        </radialGradient>
-
-        <filter
-          id="orbit-shadow"
-          x="-25%"
-          y="-50%"
-          width="150%"
-          height="220%"
-        >
-          <feDropShadow
-            dx="0"
-            dy="4"
-            stdDeviation="5"
-            floodColor="#000000"
-            floodOpacity="0.2"
-          />
-        </filter>
-      </defs>
-
-      <circle cx={CX} cy={CY} r="92" fill="url(#orbit-glow)" />
-
-      {RINGS.map((ring) => (
-        <circle
-          key={ring.r}
-          cx={CX}
-          cy={CY}
-          r={ring.r}
-          fill="none"
-          stroke="#8fd6b3"
-          strokeOpacity={ring.opacity}
-          strokeWidth="1"
-        />
-      ))}
-
-      {PEOPLE.map((p) => (
-        <Avatar key={p.id} p={p} />
-      ))}
-
-      {TAGS.map((t) => (
-        <g
-          key={t.label}
-          transform={`translate(${t.x} ${t.y})`}
-          filter="url(#orbit-shadow)"
-        >
-          <rect
-            x={-t.w / 2}
-            y={-16}
-            width={t.w}
-            height={32}
-            rx={8}
-            fill={t.tone === "green" ? "#329756" : "#ffffff"}
-          />
-          <text
-            className="orbit-tag-text"
-            textAnchor="middle"
-            dominantBaseline="central"
-            y={0.5}
-            fill={t.tone === "green" ? "#ffffff" : "#121212"}
-          >
-            {t.label}
-          </text>
-        </g>
-      ))}
-    </svg>
-  );
-}
-
-/* ============================================================
    SIGNUP FORM
 ============================================================ */
 
-// Set to false to hide the green panel on phones/tablets (form only, no scrolling).
-const SHOW_ART_ON_MOBILE = true;
+// Set to false to hide the image panel on phones and tablets.
+const SHOW_IMAGE_ON_MOBILE = true;
 
 export default function SignupForm() {
   const supabase = createClient();
@@ -306,14 +132,14 @@ export default function SignupForm() {
         }
 
         /* =========================================
-           LEFT SIDE (everything scales with screen height)
+           LEFT SIDE
         ========================================= */
 
         .signup-left {
           min-width: 0;
           min-height: 0;
           height: 100%;
-          overflow-y: auto; /* only kicks in on extremely short windows */
+          overflow-y: auto;
           scrollbar-width: thin;
           display: flex;
           flex-direction: column;
@@ -555,8 +381,8 @@ export default function SignupForm() {
           width: 100%;
           height: clamp(36px, 5.6vh, 44px);
           border: none;
-          border-radius: 8px;
-          background: #379b59;
+          border-radius: ;
+          background: #017CB8;
           color: #ffffff;
           font-size: clamp(13px, 1.9vh, 14px);
           font-weight: 600;
@@ -595,14 +421,30 @@ export default function SignupForm() {
         }
 
         /* =========================================
-           RIGHT SIDE
+           RIGHT SIDE: CAMPUS PHOTO
         ========================================= */
 
         .signup-right {
           position: relative;
           height: 100%;
           min-width: 0;
-          background: #062d1b;
+          background-color: #09284a;
+          background-image:
+            linear-gradient(
+              180deg,
+              rgba(5, 24, 43, 0.08) 0%,
+              rgba(5, 24, 43, 0.18) 30%,
+              rgba(5, 24, 43, 0.88) 100%
+            ),
+            linear-gradient(
+              90deg,
+              rgba(5, 24, 43, 0.12) 0%,
+              rgba(5, 24, 43, 0.12) 100%
+            ),
+            url("/images/campus-aerial.png");
+          background-size: cover;
+          background-position: center center;
+          background-repeat: no-repeat;
           color: #ffffff;
           display: flex;
           flex-direction: column;
@@ -613,27 +455,11 @@ export default function SignupForm() {
             clamp(24px, 6.5vh, 72px);
         }
 
-        .network-art {
-          position: relative;
-          flex: 1 1 0;
+        /* Flexible area exposes the campus photo above the text. */
+        .signup-image-spacer {
+          flex: 1 1 auto;
           min-height: 0;
           width: 100%;
-          max-width: 560px;
-          margin: 0 auto;
-        }
-
-        .network-art svg {
-          position: absolute;
-          inset: 0;
-          width: 100%;
-          height: 100%;
-          display: block;
-        }
-
-        .orbit-tag-text {
-          font-family: "Inter", "DM Sans", Arial, sans-serif;
-          font-size: 14px;
-          font-weight: 600;
         }
 
         .right-copy {
@@ -661,7 +487,7 @@ export default function SignupForm() {
         }
 
         /* =========================================
-           TABLET / MOBILE: stacked, page scrolls normally
+           TABLET / MOBILE
         ========================================= */
 
         @media (max-width: 900px) {
@@ -687,21 +513,22 @@ export default function SignupForm() {
 
           .signup-right {
             height: auto;
-            padding: 44px 20px 56px;
+            min-height: 460px;
+            padding: 36px 20px 44px;
+            background-position: center center;
           }
 
-          .signup-right.hide-art-mobile {
+          .signup-right.hide-image-mobile {
             display: none;
           }
 
-          .network-art {
+          .signup-image-spacer {
             flex: none;
-            max-width: 440px;
-            aspect-ratio: 460 / 420;
+            min-height: clamp(190px, 30vh, 300px);
           }
 
           .right-copy {
-            margin-top: 28px;
+            margin-top: 16px;
           }
         }
 
@@ -734,7 +561,7 @@ export default function SignupForm() {
 
           .field-input {
             height: 46px;
-            font-size: 16px; /* stops iOS zooming into inputs */
+            font-size: 16px;
           }
 
           .signup-button {
@@ -742,7 +569,13 @@ export default function SignupForm() {
           }
 
           .signup-right {
-            padding: 36px 16px 48px;
+            min-height: 420px;
+            padding: 30px 16px 38px;
+            background-position: 56% center;
+          }
+
+          .signup-image-spacer {
+            min-height: clamp(170px, 27vh, 250px);
           }
         }
 
@@ -760,14 +593,10 @@ export default function SignupForm() {
       `}</style>
 
       <main className="signup-page">
-        {/* =====================================================
-            LEFT / FORM SIDE
-        ===================================================== */}
+        {/* LEFT / FORM SIDE */}
         <section className="signup-left">
           <header className="signup-header">
-            <div className="signup-logo">
-              
-            </div>
+            <div className="signup-logo"></div>
 
             <div className="header-login">
               <span>Already part of Asknet?</span>
@@ -784,10 +613,8 @@ export default function SignupForm() {
             </h1>
 
             <p className="signup-subheading">
-              Don&apos;t worry! It&apos;s completely free!
+              
             </p>
-
-            
 
             <form onSubmit={handleSignup} className="signup-form">
               {/* Errors */}
@@ -891,17 +718,13 @@ export default function SignupForm() {
           </div>
         </section>
 
-        {/* =====================================================
-            RIGHT / VISUAL SIDE
-        ===================================================== */}
+        {/* RIGHT / CAMPUS IMAGE SIDE */}
         <aside
           className={`signup-right${
-            SHOW_ART_ON_MOBILE ? "" : " hide-art-mobile"
+            SHOW_IMAGE_ON_MOBILE ? "" : " hide-image-mobile"
           }`}
         >
-          <div className="network-art">
-            <OrbitArt />
-          </div>
+          <div className="signup-image-spacer" aria-hidden="true" />
 
           <div className="right-copy">
             <h2>Welcome home to the Asknet community</h2>

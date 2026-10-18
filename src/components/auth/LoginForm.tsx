@@ -1,3 +1,4 @@
+// src/components/auth/LoginForm.tsx
 "use client";
 
 import { useState, type FormEvent, type ChangeEvent } from "react";
@@ -6,186 +7,7 @@ import { useRouter } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/client";
 
-/* ============================================================
-   ORBIT ARTWORK (right panel)
-   Drawn on one 460 x 420 board and scaled by the SVG viewBox,
-   so spacing stays identical at every screen size.
-============================================================ */
-
-const CX = 220;
-const CY = 210;
-
-const RINGS = [
-  { r: 204, opacity: 0.08 },
-  { r: 168, opacity: 0.15 },
-  { r: 116, opacity: 0.2 },
-  { r: 66, opacity: 0.26 },
-];
-
-type Person = {
-  id: number;
-  x: number;
-  y: number;
-  size: number;
-  bg: string;
-  skin: string;
-  hair: string;
-  shirt: string;
-};
-
-const PEOPLE: Person[] = [
-  { id: 1, x: 116, y: 78, size: 56, bg: "#efe6f7", skin: "#e0b08c", hair: "#6b4a3a", shirt: "#ffffff" },
-  { id: 2, x: 306, y: 131, size: 46, bg: "#f6ecd2", skin: "#8b5a3c", hair: "#241a16", shirt: "#2f3133" },
-  { id: 3, x: 173, y: 163, size: 42, bg: "#dff0e0", skin: "#a96c46", hair: "#3b2a22", shirt: "#f0ad18" },
-  { id: 4, x: 109, y: 250, size: 52, bg: "#e7e9ec", skin: "#a76b4a", hair: "#382d28", shirt: "#294a70" },
-  { id: 5, x: 282, y: 233, size: 44, bg: "#dcecf7", skin: "#805337", hair: "#161616", shirt: "#ffffff" },
-  { id: 6, x: 210, y: 326, size: 50, bg: "#f2e7dc", skin: "#b87751", hair: "#52382d", shirt: "#354d73" },
-  { id: 7, x: 286, y: 305, size: 48, bg: "#f5e3d3", skin: "#c48b69", hair: "#6d4b3a", shirt: "#c4572f" },
-];
-
-type OrbitTag = {
-  label: string;
-  x: number;
-  y: number;
-  w: number;
-  tone: "white" | "green";
-};
-
-const TAGS: OrbitTag[] = [
-  { label: "Website Design", x: 299, y: 62, w: 137, tone: "white" },
-  { label: "Crypto", x: 380, y: 158, w: 75, tone: "green" },
-  { label: "E-Commerce", x: 380, y: 262, w: 104, tone: "white" },
-  { label: "Automotive", x: 309, y: 353, w: 100, tone: "green" },
-  { label: "Ruby", x: 197, y: 376, w: 60, tone: "white" },
-  { label: "Golang", x: 108, y: 335, w: 76, tone: "green" },
-  { label: "Blockchain", x: 54, y: 187, w: 106, tone: "white" },
-];
-
-function Avatar({ p }: { p: Person }) {
-  const r = p.size / 2;
-  const clipId = `orbit-avatar-${p.id}`;
-
-  return (
-    <g transform={`translate(${p.x - r} ${p.y - r})`}>
-      <clipPath id={clipId}>
-        <circle cx={r} cy={r} r={r} />
-      </clipPath>
-
-      <g clipPath={`url(#${clipId})`} transform={`scale(${p.size / 48})`}>
-        <rect width="48" height="48" fill={p.bg} />
-        {/* shoulders */}
-        <path d="M8 48c1-9 7-14 16-14s15 5 16 14Z" fill={p.shirt} />
-        {/* neck */}
-        <rect x="20" y="25" width="8" height="11" rx="3" fill={p.skin} />
-        {/* head */}
-        <circle cx="24" cy="18" r="8.5" fill={p.skin} />
-        {/* hair */}
-        <path d="M15 18c1-9 17-11 18 0-2-3.5-5-5.5-9-5.5s-7 2-9 5.5Z" fill={p.hair} />
-      </g>
-
-      <circle
-        cx={r}
-        cy={r}
-        r={r - 0.75}
-        fill="none"
-        stroke="rgba(255,255,255,0.55)"
-        strokeWidth="1.5"
-      />
-    </g>
-  );
-}
-
-function OrbitArt() {
-  return (
-    <svg
-      viewBox="-10 0 460 420"
-      preserveAspectRatio="xMidYMid meet"
-      aria-hidden="true"
-      focusable="false"
-    >
-      <defs>
-        <radialGradient
-          id="orbit-glow"
-          cx={CX}
-          cy={CY}
-          r="92"
-          gradientUnits="userSpaceOnUse"
-        >
-          <stop offset="0" stopColor="#3fbf80" stopOpacity="0.22" />
-          <stop offset="1" stopColor="#3fbf80" stopOpacity="0" />
-        </radialGradient>
-
-        <filter
-          id="orbit-shadow"
-          x="-25%"
-          y="-50%"
-          width="150%"
-          height="220%"
-        >
-          <feDropShadow
-            dx="0"
-            dy="4"
-            stdDeviation="5"
-            floodColor="#000000"
-            floodOpacity="0.2"
-          />
-        </filter>
-      </defs>
-
-      <circle cx={CX} cy={CY} r="92" fill="url(#orbit-glow)" />
-
-      {RINGS.map((ring) => (
-        <circle
-          key={ring.r}
-          cx={CX}
-          cy={CY}
-          r={ring.r}
-          fill="none"
-          stroke="#8fd6b3"
-          strokeOpacity={ring.opacity}
-          strokeWidth="1"
-        />
-      ))}
-
-      {PEOPLE.map((p) => (
-        <Avatar key={p.id} p={p} />
-      ))}
-
-      {TAGS.map((t) => (
-        <g
-          key={t.label}
-          transform={`translate(${t.x} ${t.y})`}
-          filter="url(#orbit-shadow)"
-        >
-          <rect
-            x={-t.w / 2}
-            y={-16}
-            width={t.w}
-            height={32}
-            rx={8}
-            fill={t.tone === "green" ? "#329756" : "#ffffff"}
-          />
-          <text
-            className="orbit-tag-text"
-            textAnchor="middle"
-            dominantBaseline="central"
-            y={0.5}
-            fill={t.tone === "green" ? "#ffffff" : "#121212"}
-          >
-            {t.label}
-          </text>
-        </g>
-      ))}
-    </svg>
-  );
-}
-
-/* ============================================================
-   LOGIN FORM
-============================================================ */
-
-// Set to false to hide the green panel on phones/tablets (form only, no scrolling).
-const SHOW_ART_ON_MOBILE = true;
+const SHOW_IMAGE_ON_MOBILE = true;
 
 export default function LoginForm() {
   const supabase = createClient();
@@ -193,7 +15,6 @@ export default function LoginForm() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -203,22 +24,31 @@ export default function LoginForm() {
     setLoading(true);
     setError(null);
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    try {
+      const { error: loginError } =
+        await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
 
-    setLoading(false);
+      if (loginError) {
+        setError(loginError.message);
+        return;
+      }
 
-    if (error) {
-      setError(error.message);
-      return;
+      await supabase.auth.getSession();
+
+      router.push("/dashboard");
+      router.refresh();
+    } catch (err: unknown) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Something went wrong. Please try again."
+      );
+    } finally {
+      setLoading(false);
     }
-
-    await supabase.auth.getSession();
-
-    router.push("/dashboard");
-    router.refresh();
   };
 
   const handleInput =
@@ -230,65 +60,82 @@ export default function LoginForm() {
   return (
     <>
       <style>{`
-        .signup-page,
-        .signup-page * {
+        /* =========================================
+           BASE
+        ========================================= */
+
+        .login-page,
+        .login-page * {
           box-sizing: border-box;
         }
 
-        /* Desktop: the document itself never scrolls */
         @media (min-width: 901px) {
-          html:has(.signup-page),
-          body:has(.signup-page) {
+          html:has(.login-page),
+          body:has(.login-page) {
             overflow: hidden;
           }
         }
 
         /* =========================================
-           PAGE: pinned to the screen, split layout
+           PAGE LAYOUT
         ========================================= */
 
-        .signup-page {
+        .login-page {
           position: fixed;
-          top: 0;
-          left: 0;
-          right: 0;
+          inset: 0;
+          width: 100%;
           height: 100vh;
           height: 100dvh;
           overflow: hidden;
           z-index: 50;
-          background: #ffffff;
+
           display: grid;
-          grid-template-columns: minmax(0, 1fr) clamp(380px, 38vw, 620px);
+          grid-template-columns:
+            minmax(0, 1fr)
+            clamp(380px, 38vw, 620px);
           grid-template-rows: minmax(0, 1fr);
-          font-family: "Inter", "DM Sans", Arial, sans-serif;
+
+          background: #ffffff;
           color: #161616;
+          font-family: "Inter", "DM Sans", Arial, sans-serif;
         }
 
         /* =========================================
-           LEFT SIDE (everything scales with screen height)
+           LEFT SIDE / LOGIN FORM
         ========================================= */
 
-        .signup-left {
-          min-width: 0;
-          min-height: 0;
-          height: 100%;
-          overflow-y: auto; /* only kicks in on extremely short windows */
-          scrollbar-width: thin;
+        .login-left {
           display: flex;
           flex-direction: column;
+
+          width: 100%;
+          height: 100%;
+          min-width: 0;
+          min-height: 0;
+
+          overflow-y: auto;
+          scrollbar-width: thin;
+
           background: #ffffff;
         }
 
-        .signup-header {
+        /* Header */
+
+        .login-header {
           flex: none;
+
           display: flex;
           align-items: center;
           justify-content: space-between;
           gap: 20px;
-          padding: clamp(12px, 2.6vh, 24px) clamp(24px, 3.2vw, 48px) 6px;
+
+          padding:
+            clamp(12px, 2.6vh, 24px)
+            clamp(24px, 3.2vw, 48px)
+            6px;
         }
 
-        .signup-logo {
+        .login-logo {
           color: #293749;
           font-size: clamp(20px, 3.2vh, 24px);
           font-weight: 700;
@@ -297,470 +144,622 @@ export default function LoginForm() {
           white-space: nowrap;
         }
 
-        .signup-logo span {
+        .login-logo span {
           display: inline-block;
           transform: skewX(-14deg);
         }
 
-        .header-login {
+        .login-header-link {
           display: flex;
           align-items: center;
           gap: 8px;
+
           color: #555b62;
           font-size: 13px;
           white-space: nowrap;
         }
 
-        .header-login-link {
+        .login-header-link a {
           color: #20684a;
+          font-weight: 500;
           text-decoration: underline;
           text-underline-offset: 2px;
-          font-weight: 500;
         }
 
-        .header-login-link:hover {
+        .login-header-link a:hover {
           color: #134d35;
         }
 
-        .signup-content {
+        /* Form content */
+
+        .login-content {
           flex: none;
           width: min(440px, calc(100% - 48px));
           margin: auto;
           padding: 8px 0 clamp(12px, 3vh, 32px);
         }
 
-        .signup-heading {
+        .login-heading {
           margin: 0;
-          text-align: center;
-          font-size: clamp(20px, 3.5vh, 30px);
-          line-height: 1.2;
-          font-weight: 600;
-          letter-spacing: -0.8px;
           color: #111111;
-        }
 
-        .signup-subheading {
-          margin: clamp(2px, 0.7vh, 6px) 0 clamp(8px, 2.2vh, 20px);
           text-align: center;
+          font-size: clamp(24px, 3.5vh, 32px);
+          font-weight: 600;
+          line-height: 1.2;
+          letter-spacing: -0.8px;
+        }
+
+        .login-subheading {
+          margin:
+            clamp(4px, 0.8vh, 8px)
+            0
+            clamp(22px, 3vh, 32px);
+
           color: #868b92;
-          font-size: clamp(12px, 1.9vh, 14px);
-          line-height: 1.5;
+          text-align: center;
+          font-size: clamp(13px, 1.9vh, 14px);
+          line-height: 1.6;
         }
 
         /* =========================================
-           SOCIAL BUTTONS
+           FORM FIELDS
         ========================================= */
 
-        .social-row {
-          display: grid;
-          grid-template-columns: repeat(2, minmax(0, 1fr));
-          gap: 12px;
-        }
-
-        .social-button {
-          height: clamp(34px, 5.2vh, 42px);
-          width: 100%;
-          border: 1px solid #e3e5e8;
-          background: #ffffff;
-          border-radius: 8px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 8px;
-          padding: 0 10px;
-          color: #181818;
-          font-size: clamp(12px, 1.8vh, 13px);
-          font-weight: 500;
-          font-family: inherit;
-          white-space: nowrap;
-          cursor: pointer;
-          transition:
-            border-color 0.15s ease,
-            box-shadow 0.15s ease;
-        }
-
-        .social-button:hover {
-          border-color: #cfd3d7;
-          box-shadow: 0 3px 10px rgba(0, 0, 0, 0.04);
-        }
-
-        .social-icon {
-          width: 16px;
-          height: 16px;
-          flex: 0 0 16px;
-        }
-
-        /* =========================================
-           OR DIVIDER
-        ========================================= */
-
-        .divider {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          margin: clamp(8px, 1.9vh, 16px) 0 clamp(8px, 2.1vh, 18px);
-          color: #a0a4a8;
-          font-size: 11px;
-          text-transform: uppercase;
-        }
-
-        .divider::before,
-        .divider::after {
-          content: "";
-          flex: 1;
-          height: 1px;
-          background: #ebedef;
-        }
-
-        /* =========================================
-           FORM
-        ========================================= */
-
-        .signup-form {
+        .login-form {
           display: flex;
           flex-direction: column;
-          gap: clamp(8px, 1.8vh, 14px);
+          gap: clamp(16px, 2.2vh, 22px);
         }
 
-        .name-row {
-          display: grid;
-          grid-template-columns: repeat(2, minmax(0, 1fr));
-          gap: 12px;
-        }
-
-        .field {
+        .login-field {
           min-width: 0;
         }
 
-        .field-label {
+        .login-field-label {
           display: block;
-          margin-bottom: clamp(2px, 0.6vh, 5px);
+          margin-bottom: 6px;
+
           color: #141414;
-          font-size: clamp(11.5px, 1.75vh, 13px);
+          font-size: 13px;
           font-weight: 500;
           line-height: 1.4;
         }
 
-        .field-required {
-          color: #2d9660;
+        .login-field-required {
           margin-left: 2px;
+          color: #2d9660;
         }
 
-        .field-input {
+        .login-field-input {
+          display: block;
           width: 100%;
-          height: clamp(34px, 5.2vh, 42px);
-          padding: 0 12px;
+          height: 44px;
+          padding: 0 13px;
+
           border: 1px solid #e1e4e7;
           border-radius: 8px;
+
           background: #ffffff;
           color: #151515;
-          font-size: clamp(13px, 1.9vh, 14px);
+
           font-family: inherit;
+          font-size: 14px;
+
           outline: none;
+
           transition:
             border-color 0.15s ease,
             box-shadow 0.15s ease;
         }
 
-        .field-input::placeholder {
+        .login-field-input::placeholder {
           color: #a0a5aa;
         }
 
-        .field-input:focus {
+        .login-field-input:focus {
           border-color: #6fae8b;
           box-shadow: 0 0 0 3px rgba(45, 150, 96, 0.12);
         }
 
-        .field-input:disabled {
+        .login-field-input:disabled {
           background: #f7f7f7;
           cursor: not-allowed;
         }
 
-        .terms-text {
-          margin: 0;
-          color: #6c7278;
-          font-size: clamp(10px, 1.5vh, 11.5px);
-          line-height: 1.5;
-        }
-
         /* =========================================
-           ALERTS
+           ERROR MESSAGE
         ========================================= */
 
-        .form-alert {
-          border-radius: 8px;
-          padding: 10px 12px;
-          font-size: 12px;
-          line-height: 1.45;
-        }
-
-        .form-alert.error {
+        .login-alert {
+          padding: 11px 13px;
           border: 1px solid #f0cccc;
+          border-radius: 8px;
+
           background: #fff6f6;
           color: #a33131;
-        }
 
-        .form-alert.success {
-          border: 1px solid #c5e5d2;
-          background: #f0faf4;
-          color: #247147;
+          font-size: 13px;
+          line-height: 1.5;
+          overflow-wrap: anywhere;
         }
 
         /* =========================================
-           MAIN BUTTON
+           FORGOT PASSWORD
         ========================================= */
 
-        .signup-button {
-          width: 100%;
-          height: clamp(36px, 5.6vh, 44px);
-          border: none;
-          border-radius: 8px;
-          background: #379b59;
-          color: #ffffff;
-          font-size: clamp(13px, 1.9vh, 14px);
-          font-weight: 600;
-          font-family: inherit;
-          cursor: pointer;
-          transition: background 0.15s ease;
+        .login-forgot {
+          display: flex;
+          justify-content: flex-end;
+          margin-top: -8px;
         }
 
-        .signup-button:hover:not(:disabled) {
+        .login-forgot a {
+          color: #28784f;
+          font-size: 12px;
+          font-weight: 500;
+          text-decoration: none;
+        }
+
+        .login-forgot a:hover {
+          text-decoration: underline;
+          text-underline-offset: 3px;
+        }
+
+        /* =========================================
+           LOGIN BUTTON
+        ========================================= */
+
+        .login-button {
+          width: 100%;
+          min-height: 46px;
+          padding: 12px 18px;
+
+          border: none;
+          border-radius: ;
+
+          background: #017CB8;
+          color: #ffffff;
+
+          font-family: inherit;
+          font-size: 14px;
+          font-weight: 600;
+
+          cursor: pointer;
+
+          transition:
+            background 0.15s ease,
+            opacity 0.15s ease;
+        }
+
+        .login-button:hover:not(:disabled) {
           background: #2f8e50;
         }
 
-        .signup-button:disabled {
+        .login-button:disabled {
           opacity: 0.65;
           cursor: not-allowed;
         }
 
-        .signup-button:focus-visible,
-        .social-button:focus-visible {
+        .login-button:focus-visible {
           outline: 2px solid #379b59;
-          outline-offset: 2px;
+          outline-offset: 3px;
         }
 
+        /* Bottom sign-up link */
+
         .login-bottom {
-          margin: clamp(8px, 1.9vh, 16px) 0 0;
-          text-align: center;
+          margin: 22px 0 0;
           color: #555b62;
-          font-size: clamp(11.5px, 1.75vh, 13px);
+          text-align: center;
+          font-size: 13px;
+          line-height: 1.6;
         }
 
         .login-bottom a {
           color: #28784f;
+          font-weight: 500;
           text-decoration: underline;
           text-underline-offset: 2px;
-          font-weight: 500;
         }
 
         /* =========================================
-           RIGHT SIDE
+           RIGHT SIDE / CAMPUS IMAGE
         ========================================= */
 
-        .signup-right {
+        .login-right {
           position: relative;
-          height: 100%;
-          min-width: 0;
-          background: #062d1b;
-          color: #ffffff;
+          isolation: isolate;
+
           display: flex;
           flex-direction: column;
-          overflow: hidden;
-          padding:
-            clamp(20px, 5vh, 56px)
-            clamp(24px, 3vw, 48px)
-            clamp(24px, 6.5vh, 72px);
-        }
+          justify-content: flex-end;
 
-        .network-art {
-          position: relative;
-          flex: 1 1 0;
-          min-height: 0;
-          width: 100%;
-          max-width: 560px;
-          margin: 0 auto;
-        }
-
-        .network-art svg {
-          position: absolute;
-          inset: 0;
           width: 100%;
           height: 100%;
-          display: block;
+          min-width: 0;
+          min-height: 0;
+
+          overflow: hidden;
+          padding:
+            clamp(24px, 5vh, 56px)
+            clamp(24px, 3vw, 48px)
+            clamp(32px, 6.5vh, 72px);
+
+          background-color: #09284a;
+
+          background-image:
+            linear-gradient(
+              180deg,
+              rgba(5, 24, 43, 0.04) 0%,
+              rgba(5, 24, 43, 0.12) 35%,
+              rgba(5, 24, 43, 0.88) 100%
+            ),
+            linear-gradient(
+              90deg,
+              rgba(5, 24, 43, 0.12) 0%,
+              rgba(5, 24, 43, 0.08) 100%
+            ),
+            url("/images/campus-aerial.png");
+
+          background-position: center center;
+          background-repeat: no-repeat;
+          background-size: cover;
+
+          color: #ffffff;
         }
 
-        .orbit-tag-text {
-          font-family: "Inter", "DM Sans", Arial, sans-serif;
-          font-size: 14px;
-          font-weight: 600;
+        .login-right.hide-image-mobile {
+          display: flex;
         }
 
-        .right-copy {
-          flex: none;
-          max-width: 380px;
-          margin: clamp(10px, 2.6vh, 36px) auto 0;
+        /* Text over the photograph */
+
+        .login-right-copy {
+          position: relative;
+          z-index: 1;
+
+          width: 100%;
+          max-width: 400px;
+          margin: 0 auto;
+
           text-align: center;
-        }
-
-        .right-copy h2 {
-          margin: 0;
-          font-family: "Source Serif 4", Georgia, "Times New Roman", serif;
-          font-size: clamp(22px, min(2.7vw, 4.6vh), 40px);
-          line-height: 1.1;
-          font-weight: 400;
-          letter-spacing: -1px;
           text-wrap: balance;
         }
 
-        .right-copy p {
-          margin: clamp(8px, 2vh, 20px) 0 0;
-          color: rgba(255, 255, 255, 0.82);
-          font-size: clamp(12.5px, min(1.15vw, 2.1vh), 16px);
-          line-height: 1.55;
+        .login-right-copy h2 {
+          margin: 0;
+
+          color: #ffffff;
+          font-family:
+            "Source Serif 4",
+            Georgia,
+            "Times New Roman",
+            serif;
+
+          font-size: clamp(26px, min(2.7vw, 4.6vh), 42px);
+          font-weight: 400;
+          line-height: 1.14;
+          letter-spacing: -0.8px;
+        }
+
+        .login-right-copy p {
+          margin: 14px 0 0;
+
+          color: rgba(255, 255, 255, 0.88);
+          font-size: clamp(13px, min(1.15vw, 2.1vh), 16px);
+          line-height: 1.7;
         }
 
         /* =========================================
-           TABLET / MOBILE: stacked, page scrolls normally
+           TABLETS
+        ========================================= */
+
+        @media (max-width: 1024px) {
+          .login-page {
+            grid-template-columns:
+              minmax(0, 1fr)
+              minmax(350px, 42vw);
+          }
+
+          .login-header {
+            padding-right: 28px;
+            padding-left: 28px;
+          }
+
+          .login-content {
+            width: min(440px, calc(100% - 56px));
+          }
+
+          .login-right {
+            background-position: center center;
+          }
+
+          .login-right-copy h2 {
+            font-size: clamp(26px, 3vw, 36px);
+          }
+        }
+
+        /* =========================================
+           MOBILE AND TABLET STACKED LAYOUT
         ========================================= */
 
         @media (max-width: 900px) {
-          .signup-page {
+          .login-page {
             position: static;
+
+            display: flex;
+            flex-direction: column;
+
+            width: 100%;
             height: auto;
             min-height: 100vh;
             min-height: 100dvh;
+
             overflow: visible;
             z-index: auto;
-            grid-template-columns: 1fr;
-            grid-template-rows: auto;
           }
 
-          .signup-left {
+          .login-left {
+            flex: none;
+            width: 100%;
             height: auto;
+            min-height: 0;
             overflow: visible;
           }
 
-          .signup-content {
-            padding: 24px 0 48px;
+          .login-content {
+            width: min(440px, calc(100% - 48px));
+            margin: auto;
+            padding: 42px 0 48px;
           }
 
-          .signup-right {
+          .login-right {
+            flex: none;
+            width: 100%;
             height: auto;
-            padding: 44px 20px 56px;
+            min-height: 440px;
+
+            padding: 40px 28px 44px;
+
+            background-position: center 55%;
           }
 
-          .signup-right.hide-art-mobile {
+          .login-right.hide-image-mobile {
             display: none;
           }
 
-          .network-art {
-            flex: none;
+          .login-right-copy {
             max-width: 440px;
-            aspect-ratio: 460 / 420;
           }
 
-          .right-copy {
-            margin-top: 28px;
+          .login-right-copy h2 {
+            font-size: clamp(28px, 4vw, 38px);
+          }
+
+          .login-right-copy p {
+            font-size: 15px;
           }
         }
 
+        /* =========================================
+           SMALL PHONES
+        ========================================= */
+
         @media (max-width: 600px) {
-          .signup-header {
-            padding: 18px 18px 8px;
+          .login-header {
+            gap: 12px;
+            padding: 20px 18px 8px;
           }
 
-          .signup-logo {
+          .login-logo {
             font-size: 21px;
           }
 
-          .header-login {
-            font-size: 12px;
+          .login-header-link {
             gap: 5px;
+            font-size: 12px;
           }
 
-          .signup-content {
-            width: calc(100% - 36px);
+          .login-content {
+            width: calc(100% - 40px);
+            padding: 46px 0 42px;
           }
 
-          .social-row,
-          .name-row {
-            grid-template-columns: 1fr;
+          .login-heading {
+            font-size: 28px;
+            letter-spacing: -0.7px;
           }
 
-          .social-button {
-            height: 44px;
+          .login-subheading {
+            margin-top: 8px;
+            margin-bottom: 28px;
+            font-size: 14px;
           }
 
-          .field-input {
-            height: 46px;
-            font-size: 16px; /* stops iOS zooming into inputs */
+          .login-form {
+            gap: 19px;
           }
 
-          .signup-button {
-            height: 46px;
+          .login-field-label {
+            margin-bottom: 7px;
+            font-size: 13px;
           }
 
-          .signup-right {
-            padding: 36px 16px 48px;
+          .login-field-input {
+            height: 48px;
+            padding: 0 13px;
+            font-size: 16px;
+          }
+
+          .login-button {
+            min-height: 48px;
+            font-size: 14px;
+          }
+
+          .login-forgot {
+            margin-top: -7px;
+          }
+
+          .login-bottom {
+            margin-top: 22px;
+            font-size: 12px;
+          }
+
+          .login-right {
+            min-height: 390px;
+            padding: 36px 22px 38px;
+
+            background-position: 56% center;
+
+            background-image:
+              linear-gradient(
+                180deg,
+                rgba(5, 24, 43, 0.12) 0%,
+                rgba(5, 24, 43, 0.3) 35%,
+                rgba(5, 24, 43, 0.9) 100%
+              ),
+              url("/images/campus-aerial.png");
+          }
+
+          .login-right-copy h2 {
+            font-size: 30px;
+            line-height: 1.18;
+          }
+
+          .login-right-copy p {
+            margin-top: 12px;
+            font-size: 14px;
+            line-height: 1.7;
           }
         }
+
+        /* =========================================
+           EXTRA-SMALL PHONES
+        ========================================= */
 
         @media (max-width: 380px) {
-          .header-login span {
-            display: none;
+          .login-header {
+            padding-right: 14px;
+            padding-left: 14px;
+          }
+
+          .login-header-link {
+            font-size: 11px;
+          }
+
+          .login-content {
+            width: calc(100% - 32px);
+            padding-top: 38px;
+          }
+
+          .login-heading {
+            font-size: 26px;
+          }
+
+          .login-right {
+            min-height: 350px;
+            padding: 30px 18px 32px;
+          }
+
+          .login-right-copy h2 {
+            font-size: 27px;
+          }
+
+          .login-right-copy p {
+            font-size: 13px;
           }
         }
 
+        /* =========================================
+           SHORT SCREENS
+        ========================================= */
+
+        @media (min-width: 901px) and (max-height: 650px) {
+          .login-content {
+            padding-top: 8px;
+            padding-bottom: 12px;
+          }
+
+          .login-subheading {
+            margin-bottom: 18px;
+          }
+
+          .login-form {
+            gap: 12px;
+          }
+
+          .login-bottom {
+            margin-top: 12px;
+          }
+        }
+
+        /* =========================================
+           REDUCED MOTION
+        ========================================= */
+
         @media (prefers-reduced-motion: reduce) {
-          .signup-page * {
+          .login-page * {
             transition: none !important;
           }
         }
       `}</style>
 
-      <main className="signup-page">
-        {/* =====================================================
-            LEFT / FORM SIDE
-        ===================================================== */}
-        <section className="signup-left">
-          <header className="signup-header">
-            <div className="signup-logo">
-              
-            </div>
+      <main className="login-page">
+        {/* LEFT SIDE / LOGIN FORM */}
 
-            <div className="header-login">
+        <section className="login-left">
+          <header className="login-header">
+            <div className="login-logo"></div>
+
+            <div className="login-header-link">
               <span>New to Asknet?</span>
 
-              <Link href="/signup" className="header-login-link">
+              <Link href="/signup">
                 Sign up
               </Link>
             </div>
           </header>
 
-          <div className="signup-content">
-            <h1 className="signup-heading">Welcome back</h1>
+          <div className="login-content">
+            <h1 className="login-heading">
+              Welcome back
+            </h1>
 
-            <p className="signup-subheading">Log in to continue</p>
+            <p className="login-subheading">
+              Log in to continue
+            </p>
 
-            
+            <form
+              onSubmit={handleLogin}
+              className="login-form"
+            >
+              {/* Error message */}
 
-            <form onSubmit={handleLogin} className="signup-form">
-              {/* Errors */}
               {error && (
-                <div className="form-alert error" role="alert">
+                <div
+                  className="login-alert"
+                  role="alert"
+                >
                   {error}
                 </div>
               )}
 
-              {/* Email */}
-              <div className="field">
-                <label htmlFor="email" className="field-label">
+              {/* Email address */}
+
+              <div className="login-field">
+                <label
+                  htmlFor="login-email"
+                  className="login-field-label"
+                >
                   Email address
-                  <span className="field-required">*</span>
+                  <span className="login-field-required">
+                    *
+                  </span>
                 </label>
 
                 <input
-                  id="email"
+                  id="login-email"
                   name="email"
                   type="email"
                   value={email}
@@ -769,19 +768,25 @@ export default function LoginForm() {
                   disabled={loading}
                   autoComplete="email"
                   placeholder="Enter email address"
-                  className="field-input"
+                  className="login-field-input"
                 />
               </div>
 
               {/* Password */}
-              <div className="field">
-                <label htmlFor="password" className="field-label">
+
+              <div className="login-field">
+                <label
+                  htmlFor="login-password"
+                  className="login-field-label"
+                >
                   Password
-                  <span className="field-required">*</span>
+                  <span className="login-field-required">
+                    *
+                  </span>
                 </label>
 
                 <input
-                  id="password"
+                  id="login-password"
                   name="password"
                   type="password"
                   value={password}
@@ -790,14 +795,23 @@ export default function LoginForm() {
                   disabled={loading}
                   autoComplete="current-password"
                   placeholder="Enter your password"
-                  className="field-input"
+                  className="login-field-input"
                 />
               </div>
 
+              {/* Forgot password */}
+
+              <div className="login-forgot">
+                <Link href="/forgot-password">
+                  Forgot password?
+                </Link>
+              </div>
+
               {/* Submit */}
+
               <button
                 type="submit"
-                className="signup-button"
+                className="login-button"
                 disabled={loading}
               >
                 {loading ? "Signing in..." : "Log in"}
@@ -805,25 +819,28 @@ export default function LoginForm() {
             </form>
 
             <p className="login-bottom">
-              Don&apos;t have an account? <Link href="/signup">Sign up</Link>
+              Don&apos;t have an account?{" "}
+              <Link href="/signup">
+                Sign up
+              </Link>
             </p>
           </div>
         </section>
 
-        {/* =====================================================
-            RIGHT / VISUAL SIDE
-        ===================================================== */}
-        <aside
-          className={`signup-right${
-            SHOW_ART_ON_MOBILE ? "" : " hide-art-mobile"
-          }`}
-        >
-          <div className="network-art">
-            <OrbitArt />
-          </div>
+        {/* RIGHT SIDE / CAMPUS IMAGE */}
 
-          <div className="right-copy">
-            <h2>Welcome back to the Asknet community</h2>
+        <aside
+          className={`login-right${
+            SHOW_IMAGE_ON_MOBILE
+              ? ""
+              : " hide-image-mobile"
+          }`}
+          aria-label="Asknet community"
+        >
+          <div className="login-right-copy">
+            <h2>
+              Welcome back to the Asknet community
+            </h2>
 
             <p>
               Pick up where you left off and keep connecting,

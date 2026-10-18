@@ -9,6 +9,8 @@ import Sidebar from "./Sidebar";
 import RightSidebar from "./RightSidebar";
 import BottomTabBar, { shouldShowTabBar } from "./BottomTabBar";
 
+import useLobbyUnread from "@/hooks/useLobbyUnread";
+
 interface Props {
   children: ReactNode;
   user: User;
@@ -21,6 +23,9 @@ export default function MainLayout({
   const pathname = usePathname();
   const showTabBar = shouldShowTabBar(pathname);
 
+  // Unread Lobby messages, shown on the Lobby link and tab
+  const { total: lobbyUnread } = useLobbyUnread(user.id);
+
   return (
     <div className="min-h-screen bg-canvas">
       <Navbar user={user} />
@@ -28,7 +33,7 @@ export default function MainLayout({
       <div className="mx-auto flex w-full max-w-[1600px]">
         {/* Desktop sidebar */}
         <div className="hidden md:block">
-          <Sidebar />
+          <Sidebar lobbyUnread={lobbyUnread} />
         </div>
 
         {/* Main content (extra bottom room on phones for the tab bar) */}
@@ -49,7 +54,7 @@ export default function MainLayout({
       </div>
 
       {/* Phone navigation */}
-      <BottomTabBar userId={user.id} />
+      <BottomTabBar userId={user.id} lobbyUnread={lobbyUnread} />
     </div>
   );
 }

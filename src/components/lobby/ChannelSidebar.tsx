@@ -10,11 +10,14 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
+import { formatUnread } from "@/hooks/useLobbyUnread";
+
 import type { LobbyChannel } from "@/types/lobby";
 
 interface Props {
   channels: LobbyChannel[];
   activeId: string | null;
+  unread: Record<string, number>;
   onSelect: (id: string) => void;
 }
 
@@ -28,6 +31,7 @@ const CHANNEL_ICONS: Record<string, LucideIcon> = {
 export default function ChannelSidebar({
   channels,
   activeId,
+  unread,
   onSelect,
 }: Props) {
   return (
@@ -51,6 +55,7 @@ export default function ChannelSidebar({
         {channels.map((channel) => {
           const Icon = CHANNEL_ICONS[channel.slug] ?? Hash;
           const active = channel.id === activeId;
+          const unreadCount = active ? 0 : unread[channel.id] ?? 0;
 
           return (
             <button
@@ -66,15 +71,32 @@ export default function ChannelSidebar({
             >
               <Icon size={18} className="shrink-0" />
 
-              <span className="truncate">{channel.name}</span>
+              <span
+                className={`truncate ${
+                  unreadCount > 0 ? "font-semibold text-gray-900" : ""
+                }`}
+              >
+                {channel.name}
+              </span>
 
-              {channel.admin_only && (
-                <Lock
-                  size={13}
-                  className="ml-auto shrink-0 text-gray-400"
-                  aria-label="Only admins can post"
-                />
-              )}
+              <span className="ml-auto flex shrink-0 items-center gap-2">
+                {channel.admin_only && (
+                  <Lock
+                    size={13}
+                    className="text-gray-400"
+                    aria-label="Only admins can post"
+                  />
+                )}
+
+                {unreadCount > 0 && (
+                  <span
+                    aria-label={`${unreadCount} unread`}
+                    className="flex h-5 min-w-5 items-center justify-center rounded-full bg-brand-600 px-1.5 text-[11px] font-semibold text-white"
+                  >
+                    {formatUnread(unreadCount)}
+                  </span>
+                )}
+              </span>
             </button>
           );
         })}

@@ -42,6 +42,7 @@ interface Props {
   onDiscard: (id: string) => void;
 
   onlineCount: number;
+  unreadElsewhere: number;
 
   onOpenChannels: () => void;
   onOpenMembers: () => void;
@@ -66,6 +67,7 @@ export default function ChatArea({
   onRetry,
   onDiscard,
   onlineCount,
+  unreadElsewhere,
   onOpenChannels,
   onOpenMembers,
 }: Props) {
@@ -83,6 +85,7 @@ export default function ChatArea({
       <ChatHeader
         channel={channel}
         onlineCount={onlineCount}
+        unreadElsewhere={unreadElsewhere}
         onOpenChannels={onOpenChannels}
         onOpenMembers={onOpenMembers}
       />

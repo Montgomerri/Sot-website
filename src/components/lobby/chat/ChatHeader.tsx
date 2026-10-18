@@ -8,6 +8,7 @@ import type { LobbyChannel } from "@/types/lobby";
 interface Props {
   channel: LobbyChannel;
   onlineCount: number;
+  unreadElsewhere: number;
   onOpenChannels: () => void;
   onOpenMembers: () => void;
 }
@@ -18,6 +19,7 @@ const iconButton =
 export default function ChatHeader({
   channel,
   onlineCount,
+  unreadElsewhere,
   onOpenChannels,
   onOpenMembers,
 }: Props) {
@@ -36,10 +38,21 @@ export default function ChatHeader({
       <button
         type="button"
         onClick={onOpenChannels}
-        aria-label="Open channels"
-        className={`${iconButton} mr-3 md:hidden`}
+        aria-label={
+          unreadElsewhere > 0
+            ? "Open channels (unread messages)"
+            : "Open channels"
+        }
+        className={`${iconButton} relative mr-3 md:hidden`}
       >
         <Menu size={20} />
+
+        {unreadElsewhere > 0 && (
+          <span
+            aria-hidden="true"
+            className="absolute right-1.5 top-1.5 h-2.5 w-2.5 rounded-full border-2 border-white bg-red-500"
+          />
+        )}
       </button>
 
       {/* Channel information */}

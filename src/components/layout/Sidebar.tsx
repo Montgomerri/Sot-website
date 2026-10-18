@@ -9,17 +9,25 @@ import {
   Users,
   Building2,
   FlaskConical,
+  MessagesSquare,
 } from "lucide-react";
+
+import { formatUnread } from "@/hooks/useLobbyUnread";
 
 const items = [
   { name: "Home", icon: House, href: "/dashboard" },
   { name: "Questions", icon: CircleHelp, href: "/questions" },
+  { name: "Lobby", icon: MessagesSquare, href: "/lobby" },
   { name: "Tags", icon: Tags, href: "/tags" },
   { name: "Users", icon: Users, href: "/users" },
   { name: "Companies", icon: Building2, href: "/companies" },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({
+  lobbyUnread = 0,
+}: {
+  lobbyUnread?: number;
+}) {
   const pathname = usePathname();
 
   function isActive(href: string) {
@@ -47,6 +55,15 @@ export default function Sidebar() {
             >
               <Icon size={17} />
               <span>{item.name}</span>
+
+              {item.href === "/lobby" && lobbyUnread > 0 && (
+                <span
+                  aria-label={`${lobbyUnread} unread messages`}
+                  className="ml-auto flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-semibold text-white"
+                >
+                  {formatUnread(lobbyUnread)}
+                </span>
+              )}
             </Link>
           );
         })}

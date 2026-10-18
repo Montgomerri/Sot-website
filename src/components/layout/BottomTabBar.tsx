@@ -10,6 +10,8 @@ import {
   User,
 } from "lucide-react";
 
+import { formatUnread } from "@/hooks/useLobbyUnread";
+
 /**
  * Pages where the tab bar is hidden (the editor needs the full screen).
  * MainLayout uses this too, so the bottom spacing is removed as well.
@@ -20,7 +22,13 @@ export function shouldShowTabBar(pathname: string | null) {
   return !HIDE_ON.includes(pathname ?? "");
 }
 
-export default function BottomTabBar({ userId }: { userId: string }) {
+export default function BottomTabBar({
+  userId,
+  lobbyUnread = 0,
+}: {
+  userId: string;
+  lobbyUnread?: number;
+}) {
   const pathname = usePathname() ?? "";
 
   if (!shouldShowTabBar(pathname)) return null;
@@ -50,6 +58,7 @@ export default function BottomTabBar({ userId }: { userId: string }) {
       href: "/lobby",
       icon: MessagesSquare,
       active: false,
+      badge: lobbyUnread,
     },
     {
       label: "Profile",
@@ -110,7 +119,18 @@ export default function BottomTabBar({ userId }: { userId: string }) {
                     <span className="absolute left-1/2 top-0 h-0.5 w-8 -translate-x-1/2 rounded-b-full bg-brand-600" />
                   )}
 
-                  <Icon size={22} strokeWidth={tab.active ? 2.4 : 2} />
+                  <span className="relative">
+                    <Icon size={22} strokeWidth={tab.active ? 2.4 : 2} />
+
+                    {!!tab.badge && tab.badge > 0 && (
+                      <span
+                        aria-label={`${tab.badge} unread messages`}
+                        className="absolute -right-2.5 -top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-semibold leading-none text-white"
+                      >
+                        {formatUnread(tab.badge)}
+                      </span>
+                    )}
+                  </span>
 
                   {tab.label}
                 </Link>

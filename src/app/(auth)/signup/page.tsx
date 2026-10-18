@@ -6,8 +6,8 @@ export default function SignupPage() {
     <main className="min-h-screen flex items-center justify-center bg-gray-50 p-6">
 
       <AuthCard
-        title="Create account"
-        description="Join your department community"
+        title=""
+        description=""
       >
         <SignupForm />
       </AuthCard>
