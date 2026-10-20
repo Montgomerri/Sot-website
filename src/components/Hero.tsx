@@ -1,3 +1,4 @@
+
 // src/components/Hero.tsx
 "use client";
 
@@ -21,14 +22,14 @@ export default function Hero() {
           background-image:
             linear-gradient(
               90deg,
-              rgba(5, 24, 43, 0.94) 0%,
-              rgba(5, 27, 47, 0.84) 38%,
-              rgba(5, 27, 47, 0.55) 67%,
-              rgba(5, 27, 47, 0.28) 100%
+              rgba(5, 24, 43, 0.78) 0%,
+              rgba(5, 27, 47, 0.66) 38%,
+              rgba(5, 27, 47, 0.36) 67%,
+              rgba(5, 27, 47, 0.16) 100%
             ),
             linear-gradient(
               0deg,
-              rgba(5, 24, 43, 0.38) 0%,
+              rgba(5, 24, 43, 0.22) 0%,
               transparent 60%
             ),
             url("/images/campus-aerial.png");
@@ -43,8 +44,7 @@ export default function Hero() {
           box-sizing: border-box;
         }
 
-        /* ===== Main Container ===== */
-
+        /* Main Container */
         .hero-inner {
           width: min(1200px, calc(100% - 64px));
           margin-inline: auto;
@@ -61,30 +61,7 @@ export default function Hero() {
           min-width: 0;
         }
 
-        /* ===== Eyebrow ===== */
-
-        .hero-eyebrow {
-          display: inline-flex;
-          align-items: center;
-          gap: 10px;
-          max-width: 100%;
-          margin: 0 0 24px;
-          padding: 9px 14px;
-          border: 1px solid rgba(255, 255, 255, 0.26);
-          border-radius: 999px;
-          background: rgba(255, 255, 255, 0.09);
-          color: #ffffff;
-          font-size: 12px;
-          font-weight: 700;
-          letter-spacing: 1.5px;
-          line-height: 1.5;
-          text-transform: uppercase;
-          backdrop-filter: blur(8px);
-          -webkit-backdrop-filter: blur(8px);
-        }
-
-        /* ===== Heading ===== */
-
+        /* Heading */
         .hero-title {
           max-width: 740px;
           margin: 0;
@@ -98,23 +75,21 @@ export default function Hero() {
         }
 
         .hero-title-accent {
-          color: #55d69b;
+          color: #027CB9;
         }
 
-        /* ===== Description ===== */
-
+        /* Description */
         .hero-subtitle {
           max-width: 620px;
           margin: 24px 0 0;
-          color: rgba(255, 255, 255, 0.9);
+          color: rgba(255, 255, 255, 0.94);
           font-size: 17px;
           font-weight: 400;
           line-height: 1.85;
           overflow-wrap: break-word;
         }
 
-        /* ===== Buttons ===== */
-
+        /* Buttons */
         .hero-actions {
           display: flex;
           flex-wrap: wrap;
@@ -149,29 +124,29 @@ export default function Hero() {
         }
 
         .hero-btn-primary {
-          border: 1px solid #55d69b;
-          background: #55d69b;
-          color: #092e30;
+          border: 1px solid #027CB9;
+          background: #027CB9;
+          color: #ffffff;
           box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
         }
 
         .hero-btn-primary:hover {
-          background: #77e4b2;
-          border-color: #77e4b2;
+          background: #0396D9;
+          border-color: #0396D9;
           transform: translateY(-2px);
           box-shadow: 0 12px 28px rgba(0, 0, 0, 0.22);
         }
 
         .hero-btn-secondary {
-          border: 1px solid rgba(255, 255, 255, 0.65);
-          background: rgba(255, 255, 255, 0.08);
+          border: 1px solid rgba(255, 255, 255, 0.75);
+          background: rgba(255, 255, 255, 0.10);
           color: #ffffff;
           backdrop-filter: blur(8px);
           -webkit-backdrop-filter: blur(8px);
         }
 
         .hero-btn-secondary:hover {
-          background: rgba(255, 255, 255, 0.18);
+          background: rgba(255, 255, 255, 0.20);
           border-color: #ffffff;
           transform: translateY(-2px);
         }
@@ -183,7 +158,7 @@ export default function Hero() {
           justify-content: center;
           width: 23px;
           height: 23px;
-          border: 1px solid rgba(255, 255, 255, 0.55);
+          border: 1px solid rgba(255, 255, 255, 0.65);
           border-radius: 50%;
           font-size: 10px;
           line-height: 1;
@@ -195,8 +170,7 @@ export default function Hero() {
           outline-offset: 4px;
         }
 
-        /* ===== Tablets and Small Laptops ===== */
-
+        /* Tablets and Small Laptops */
         @media (max-width: 1024px) {
           .hero-section {
             min-height: 590px;
@@ -224,8 +198,7 @@ export default function Hero() {
           }
         }
 
-        /* ===== Mobile ===== */
-
+        /* Mobile */
         @media (max-width: 768px) {
           .hero-section {
             min-height: auto;
@@ -234,12 +207,12 @@ export default function Hero() {
             background-image:
               linear-gradient(
                 90deg,
-                rgba(5, 24, 43, 0.88) 0%,
-                rgba(5, 24, 43, 0.80) 100%
+                rgba(5, 24, 43, 0.70) 0%,
+                rgba(5, 24, 43, 0.62) 100%
               ),
               linear-gradient(
                 0deg,
-                rgba(5, 24, 43, 0.35) 0%,
+                rgba(5, 24, 43, 0.18) 0%,
                 transparent 100%
               ),
               url("/images/campus-aerial.png");
@@ -254,14 +227,6 @@ export default function Hero() {
             width: 100%;
             max-width: 580px;
             margin-inline: auto;
-          }
-
-          .hero-eyebrow {
-            margin-bottom: 20px;
-            padding: 8px 12px;
-            gap: 8px;
-            font-size: 10px;
-            letter-spacing: 1.1px;
           }
 
           .hero-title {
@@ -306,8 +271,7 @@ export default function Hero() {
           }
         }
 
-        /* ===== Small Phones ===== */
-
+        /* Small Phones */
         @media (max-width: 480px) {
           .hero-section {
             padding: 60px 0 66px;
@@ -316,13 +280,6 @@ export default function Hero() {
 
           .hero-inner {
             width: calc(100% - 36px);
-          }
-
-          .hero-eyebrow {
-            margin-bottom: 18px;
-            padding: 7px 10px;
-            font-size: 9px;
-            letter-spacing: 0.9px;
           }
 
           .hero-title {
@@ -350,8 +307,7 @@ export default function Hero() {
           }
         }
 
-        /* ===== Extra-Small Phones ===== */
-
+        /* Extra-Small Phones */
         @media (max-width: 360px) {
           .hero-section {
             padding: 52px 0 58px;
@@ -359,11 +315,6 @@ export default function Hero() {
 
           .hero-inner {
             width: calc(100% - 28px);
-          }
-
-          .hero-eyebrow {
-            font-size: 8px;
-            letter-spacing: 0.7px;
           }
 
           .hero-title {
@@ -376,8 +327,7 @@ export default function Hero() {
           }
         }
 
-        /* ===== Reduced Motion Accessibility ===== */
-
+        /* Reduced Motion Accessibility */
         @media (prefers-reduced-motion: reduce) {
           .hero-btn-primary,
           .hero-btn-secondary {
@@ -397,10 +347,6 @@ export default function Hero() {
       >
         <div className="hero-inner">
           <div className="hero-text">
-            <p className="hero-eyebrow">
-              School of Technology
-            </p>
-
             <h1
               className="hero-title"
               id="hero-title"
@@ -435,7 +381,7 @@ export default function Hero() {
                   className="hero-play-icon"
                   aria-hidden="true"
                 >
-                  ▶
+                  
                 </span>
                 How It Works
               </button>

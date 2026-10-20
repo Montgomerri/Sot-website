@@ -13,7 +13,7 @@ import ResourcesCard from "./ResourcesCard";
 const SLIDES = [
   { title: "Department Announcements", node: <AnnouncementCard /> },
   { title: "Upcoming Events", node: <UpcomingEvents /> },
-  { title: "Quick Links", node: <ResourcesCard /> },
+  
 ];
 
 export default function MobileHighlights() {

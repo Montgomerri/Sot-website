@@ -8,37 +8,11 @@ import {
 
 import type { Profile } from "@/types/profile";
 
-/**
- * Time-of-day greeting, worked out in Ghana time (Africa/Accra) so the
- * server and the student always agree.
- */
-function getGreeting() {
-  const hour = Number(
-    new Intl.DateTimeFormat("en-GB", {
-      hour: "numeric",
-      hour12: false,
-      timeZone: "Africa/Accra",
-    }).format(new Date())
-  );
-
-  if (hour >= 5 && hour < 12) {
-    return { twi: "Maakye", english: "Good morning" };
-  }
-
-  if (hour >= 12 && hour < 17) {
-    return { twi: "Maaha", english: "Good afternoon" };
-  }
-
-  return { twi: "Maadwo", english: "Good evening" };
-}
-
 export default function GreetingBanner({
   profile,
 }: {
   profile: Profile | null;
 }) {
-  const greeting = getGreeting();
-
   const fullName = profile?.full_name?.trim() ?? "";
   const firstName = fullName.split(/\s+/)[0] || "Student";
 
@@ -50,10 +24,37 @@ export default function GreetingBanner({
         viewBox="0 0 400 400"
         className="pointer-events-none absolute -right-24 -top-28 h-[340px] w-[340px] text-brand-400 sm:-right-16 sm:-top-24 sm:h-[400px] sm:w-[400px]"
       >
-        <circle cx="200" cy="200" r="190" fill="none" stroke="currentColor" strokeOpacity="0.14" />
-        <circle cx="200" cy="200" r="140" fill="none" stroke="currentColor" strokeOpacity="0.2" />
-        <circle cx="200" cy="200" r="90" fill="none" stroke="currentColor" strokeOpacity="0.26" />
-        <circle cx="200" cy="200" r="90" fill="currentColor" fillOpacity="0.06" />
+        <circle
+          cx="200"
+          cy="200"
+          r="190"
+          fill="none"
+          stroke="currentColor"
+          strokeOpacity="0.14"
+        />
+        <circle
+          cx="200"
+          cy="200"
+          r="140"
+          fill="none"
+          stroke="currentColor"
+          strokeOpacity="0.2"
+        />
+        <circle
+          cx="200"
+          cy="200"
+          r="90"
+          fill="none"
+          stroke="currentColor"
+          strokeOpacity="0.26"
+        />
+        <circle
+          cx="200"
+          cy="200"
+          r="90"
+          fill="currentColor"
+          fillOpacity="0.06"
+        />
       </svg>
 
       <div className="relative flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
@@ -74,22 +75,18 @@ export default function GreetingBanner({
             )}
 
             <div className="min-w-0">
-              <p className="text-xs font-medium uppercase tracking-wider text-brand-300">
-                {greeting.english}
-              </p>
-
-              <h1 className="mt-0.5 truncate text-2xl font-bold leading-tight tracking-tight sm:text-3xl">
-                {greeting.twi}, {firstName}
+              <h1 className="truncate text-2xl font-bold leading-tight tracking-tight sm:text-3xl">
+                {firstName}
               </h1>
             </div>
           </div>
 
           <p className="mt-4 max-w-xl text-sm leading-6 text-brand-100/90 sm:text-base sm:leading-7">
-            Find answers to your technical questions and help other
-            students in your department.
+            Find answers to your technical questions and help other students
+            in your department.
           </p>
 
-          {/* Chips */}
+          {/* Student information */}
           <div className="mt-4 flex flex-wrap gap-2">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-brand-100 ring-1 ring-white/10">
               <Trophy size={13} />

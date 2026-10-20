@@ -73,12 +73,13 @@ export default function QuestionCard({
           {question.tags && question.tags.length > 0 && (
             <div className="mt-3 flex flex-wrap gap-2 sm:mt-4">
               {question.tags.map((tag: string) => (
-                <span
+                <Link
                   key={tag}
-                  className="max-w-full break-words rounded-full bg-brand-50 px-2.5 py-1 text-xs text-brand-700 sm:px-3 sm:text-sm"
+                  href={`/questions?tag=${encodeURIComponent(tag)}`}
+                  className="max-w-full break-words rounded-full bg-brand-50 px-2.5 py-1 text-xs text-brand-700 transition hover:bg-brand-100 sm:px-3 sm:text-sm"
                 >
                   {tag}
-                </span>
+                </Link>
               ))}
             </div>
           )}

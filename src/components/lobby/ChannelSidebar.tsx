@@ -37,13 +37,11 @@ export default function ChannelSidebar({
   return (
     <aside className="w-72 border-r border-gray-200 bg-white px-4 py-6">
       <div className="mb-8 flex items-center gap-3 px-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-600 font-bold text-white">
-          G
-        </div>
+        
 
         <div>
-          <h2 className="font-semibold text-gray-900">GIMPA</h2>
-          <p className="text-xs text-gray-500">Community</p>
+          <h2 className="font-semibold text-gray-900">SOTSS</h2>
+          <p className="text-xs text-gray-500">General Lobby</p>
         </div>
       </div>
 

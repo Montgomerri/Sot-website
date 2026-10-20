@@ -43,13 +43,16 @@ function FeedSkeleton() {
 
 export default function QuestionList({
   title = "Questions",
+  initialTag = null,
 }: {
   title?: string;
+  /** Start filtered to this tag (used by /questions?tag=...) */
+  initialTag?: string | null;
 }) {
   const { questions, loading, error, refresh } = useQuestions();
 
   const [sort, setSort] = useState<Sort>("newest");
-  const [tag, setTag] = useState<string | null>(null);
+  const [tag, setTag] = useState<string | null>(initialTag);
 
   // Most-used tags across all questions
   const popularTags = useMemo(() => {
@@ -66,6 +69,12 @@ export default function QuestionList({
       .slice(0, MAX_TAG_CHIPS)
       .map(([name]) => name);
   }, [questions]);
+
+  // The selected tag always has a chip, even if it isn't one of the most used
+  const chipTags = useMemo(
+    () => (tag && !popularTags.includes(tag) ? [tag, ...popularTags] : popularTags),
+    [popularTags, tag]
+  );
 
   const tagged = useMemo(
     () =>
@@ -157,7 +166,7 @@ export default function QuestionList({
         </div>
 
         {/* Tag chips */}
-        {popularTags.length > 0 && (
+        {chipTags.length > 0 && (
           <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:-mx-6 sm:px-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             <button
               type="button"
@@ -172,7 +181,7 @@ export default function QuestionList({
               All
             </button>
 
-            {popularTags.map((name) => (
+            {chipTags.map((name) => (
               <button
                 key={name}
                 type="button"

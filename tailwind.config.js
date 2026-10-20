@@ -9,23 +9,41 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Asknet green: same family as the login / signup screens
+        // The main colour of the site. 600 is the brand blue #017CB8
+        // (buttons, links, active states). 950 is the deep navy used for
+        // the greeting banner.
         brand: {
-          50: "#f2faf5",
-          100: "#e1f3e8",
-          200: "#c3e6d1",
-          300: "#94d1ae",
-          400: "#62b787",
-          500: "#379b59", // primary buttons (login / signup)
-          600: "#2f8e50",
-          700: "#28784f", // links
-          800: "#1f5d3e",
-          900: "#0d3a27",
-          950: "#062d1b", // dark panels / banner
+          50: "#f3f9fc",
+          100: "#e0f2fb",
+          200: "#bae3f7",
+          300: "#86cff3",
+          400: "#49b4e9",
+          500: "#0996dc",
+          600: "#017cb8",
+          700: "#016293",
+          800: "#034d72",
+          900: "#063b56",
+          950: "#062737",
+        },
+
+        // Green, used sparingly where it means "good": accepted answers,
+        // online, all caught up. Same green as the landing page (#3ebc84).
+        // For text on a light green, use 800 (700 is for icons).
+        accent: {
+          50: "#effaf6",
+          100: "#daf6ea",
+          200: "#b6ecd6",
+          300: "#88ddba",
+          400: "#5ccc9d",
+          500: "#3ebc84",
+          600: "#2e9e6f",
+          700: "#21835a",
+          800: "#1b6a49",
+          900: "#18533a",
         },
 
         // Soft page background behind white cards
-        canvas: "#f4f7f5",
+        canvas: "#f3f7f9",
       },
     },
   },

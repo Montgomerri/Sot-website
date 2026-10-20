@@ -8,13 +8,12 @@ import { createClient } from "@/lib/supabase/client";
 
 import useNotifications from "@/hooks/useNotifications";
 import NotificationDropdown from "@/components/notifications/NotificationDropdown";
+import CodeOfConductDialog from "./CodeOfConductDialog";
 
 import {
   Bell,
-  MessageSquare,
-  Trophy,
   CircleHelp,
-  Search,
+  Plus,
   ChevronDown,
   User as UserIcon,
   LogOut,
@@ -33,6 +32,7 @@ export default function Navbar({ user }: Props) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [notificationOpen, setNotificationOpen] = useState(false);
+  const [conductOpen, setConductOpen] = useState(false);
 
   const {
     notifications,
@@ -51,7 +51,7 @@ export default function Navbar({ user }: Props) {
     user.email?.charAt(0).toUpperCase() ?? "U";
 
   return (
-    <header className="sticky top-0 z-50 border-b border-gray-200 border-t-[3px] border-t-orange-500 bg-white">
+    <header className="sticky top-0 z-50 border-b border-gray-200 border-t-[3px] border-t-brand-500 bg-white">
       <div className="mx-auto flex h-[50px] w-full max-w-[1600px] items-center px-3 sm:px-4">
         {/* Mobile menu button */}
         <button
@@ -70,39 +70,33 @@ export default function Navbar({ user }: Props) {
         {/* Logo */}
         <Link
           href="/dashboard"
-          className="mr-3 flex shrink-0 items-center sm:mr-6"
+          className="mr-3 flex shrink-0 items-center gap-2 sm:mr-5"
           onClick={() => setMobileMenuOpen(false)}
         >
           <Image
-            src="/stackoverflow-logo.png"
-            alt="Stack Overflow"
-            width={140}
-            height={32}
-            className="h-6 w-auto sm:h-7"
+            src="/images/logo.jpg"
+            alt=""
+            width={30}
+            height={30}
+            priority
+            className="h-[30px] w-[30px] shrink-0 object-contain"
           />
+
+          <span className="text-lg font-extrabold uppercase tracking-tight text-brand-950 sm:text-xl">
+            SOTSS
+          </span>
         </Link>
 
-        {/* Desktop left links */}
-        <nav className="hidden items-center gap-5 text-[13px] text-gray-600 md:flex">
-          <button className="rounded-md px-2 py-1 hover:bg-gray-100">
-            Products
-          </button>
+        {/* Main action (phones have the Ask button in the bottom bar) */}
+        <Link
+          href="/questions/ask"
+          className="hidden items-center gap-1.5 rounded-full bg-brand-600 px-4 py-1.5 text-[13px] font-semibold text-white transition hover:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 md:inline-flex"
+        >
+          <Plus size={15} />
+          Ask a question
+        </Link>
 
-          
-        </nav>
-
-        {/* Search */}
-        <div className="relative mx-2 min-w-0 flex-1 sm:mx-4 md:mx-6">
-          <Search
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-            size={16}
-          />
-
-          <input
-            placeholder="Search..."
-            className="h-9 w-full rounded-md border border-gray-300 bg-white pl-9 pr-3 text-sm outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-200 sm:pl-10 sm:pr-4"
-          />
-        </div>
+        <div className="flex-1" />
 
         {/* Desktop actions */}
         <div className="hidden items-center gap-4 text-gray-600 md:flex">
@@ -136,29 +130,13 @@ export default function Navbar({ user }: Props) {
             )}
           </div>
 
-          {/* Messages */}
-          <Link
-            href="/messages"
-            className="rounded-md p-1 hover:bg-gray-100 hover:text-black"
-            aria-label="Messages"
-          >
-            <MessageSquare size={18} />
-          </Link>
-
-          {/* Badges */}
+          {/* Code of conduct */}
           <button
             type="button"
+            onClick={() => setConductOpen(true)}
             className="rounded-md p-1 hover:bg-gray-100 hover:text-black"
-            aria-label="Badges"
-          >
-            <Trophy size={18} />
-          </button>
-
-          {/* Help */}
-          <button
-            type="button"
-            className="rounded-md p-1 hover:bg-gray-100 hover:text-black"
-            aria-label="Help"
+            aria-label="Code of conduct"
+            title="Code of conduct"
           >
             <CircleHelp size={18} />
           </button>
@@ -170,7 +148,7 @@ export default function Navbar({ user }: Props) {
               onClick={() => setMenuOpen((open) => !open)}
               className="flex items-center gap-2 rounded-md p-1 hover:bg-gray-100"
             >
-              <div className="flex h-8 w-8 items-center justify-center rounded-md bg-blue-600 font-semibold text-white">
+              <div className="flex h-8 w-8 items-center justify-center rounded-md bg-brand-600 font-semibold text-white">
                 {initial}
               </div>
 
@@ -221,7 +199,7 @@ export default function Navbar({ user }: Props) {
           <button
             type="button"
             onClick={() => setMenuOpen((open) => !open)}
-            className="flex h-9 w-9 items-center justify-center rounded-md bg-blue-600 text-sm font-semibold text-white"
+            className="flex h-9 w-9 items-center justify-center rounded-md bg-brand-600 text-sm font-semibold text-white"
             aria-label="Open profile menu"
           >
             {initial}
@@ -287,7 +265,7 @@ export default function Navbar({ user }: Props) {
             </Link>
 
             <Link
-              href="/tags"
+              href="/questions/tags"
               className="block rounded-md px-3 py-2.5 text-sm text-gray-700 hover:bg-gray-100"
               onClick={() => setMobileMenuOpen(false)}
             >
@@ -303,33 +281,22 @@ export default function Navbar({ user }: Props) {
             </Link>
 
             <Link
-              href="/companies"
+              href="/lobby"
               className="block rounded-md px-3 py-2.5 text-sm text-gray-700 hover:bg-gray-100"
               onClick={() => setMobileMenuOpen(false)}
             >
-              Companies
-            </Link>
-
-            <Link
-              href="/messages"
-              className="block rounded-md px-3 py-2.5 text-sm text-gray-700 hover:bg-gray-100"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Messages
+              Lobby
             </Link>
 
             <button
               type="button"
+              onClick={() => {
+                setConductOpen(true);
+                setMobileMenuOpen(false);
+              }}
               className="flex w-full items-center rounded-md px-3 py-2.5 text-left text-sm text-gray-700 hover:bg-gray-100"
             >
-              Badges
-            </button>
-
-            <button
-              type="button"
-              className="flex w-full items-center rounded-md px-3 py-2.5 text-left text-sm text-gray-700 hover:bg-gray-100"
-            >
-              Help
+              Code of conduct
             </button>
 
             {/* Mobile notifications */}
@@ -352,6 +319,11 @@ export default function Navbar({ user }: Props) {
           </nav>
         </div>
       )}
+
+      <CodeOfConductDialog
+        open={conductOpen}
+        onClose={() => setConductOpen(false)}
+      />
     </header>
   );
 }

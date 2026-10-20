@@ -1,197 +1,493 @@
 "use client";
 
-import {
-  ArrowRight,
-  GraduationCap,
-  Handshake,
-  Laptop,
-  MessageCircle,
-  Monitor,
-  Users,
-} from "lucide-react";
-import type { LucideIcon } from "lucide-react";
-
-type Course = {
+type Offer = {
   title: string;
-  category: string;
-  color: string;
-  Icon: LucideIcon;
+  points: string[];
+  visual: "assess" | "pilot" | "solution";
 };
 
 export default function CoursesGrid() {
-  const courses: Course[] = [
+  const offers: Offer[] = [
     {
-      title:
-        "Graduate with internationally recognized GIMPA degrees and diplomas that validate your skills and open doors to further studies, career advancement, and leadership opportunities globally.",
-      category: "Recognized GIMPA Degrees & Diplomas",
-      color: "#0A66C2",
-      Icon: GraduationCap,
+      title: "Recognized GIMPA Degrees & Diplomas",
+      points: [
+        "Qualifications that support further studies and career advancement.",
+        "Build a foundation for leadership opportunities in Ghana and globally.",
+      ],
+      visual: "assess",
     },
     {
-      title:
-        "Through partnerships with leading tech companies, startups, and organizations, GIMPA provides students with internships, career guidance, and direct job opportunities, preparing them to thrive in Africa’s and the global job market.",
-      category: "Industry Partnerships & Career Support",
-      color: "#084F9E",
-      Icon: Handshake,
+      title: "Industry Partnerships & Career Support",
+      points: [
+        "Access internships, career guidance, and industry connections.",
+        "Prepare for opportunities across Africa and the global job market.",
+      ],
+      visual: "pilot",
     },
     {
-      title:
-        "Students benefit from state-of-the-art computer labs, high-speed internet, and digital resources that remain accessible around the clock to support learning, research, and innovation.",
-      category: "Computer Labs & Digital Resources",
-      color: "#0A2A43",
-      Icon: Monitor,
+      title: "Computer Labs & Digital Resources",
+      points: [
+        "Learn with computer labs, high-speed internet, and digital tools.",
+        "Access resources that support learning, research, and innovation.",
+      ],
+      visual: "solution",
     },
     {
-      title:
-        "Our faculty combines years of teaching, research, and real-world industry practice, ensuring students gain both theoretical knowledge and practical insights from world-class lecturers and researchers.",
-      category: "World-Class Lecturers & Researchers",
-      color: "#3EBC84",
-      Icon: Users,
+      title: "World-Class Lecturers & Researchers",
+      points: [
+        "Learn from faculty with teaching, research, and industry experience.",
+        "Connect academic knowledge with practical, real-world insights.",
+      ],
+      visual: "pilot",
     },
     {
-      title:
-        "Get academic support when you need it. Our AI-powered chatbot provides instant answers to your questions 24/7, while dedicated faculty and mentors are available for in-depth guidance.",
-      category: "Live Q&A Support",
-      color: "#0A66C2",
-      Icon: MessageCircle,
+      title: "Live Q&A Support",
+      points: [
+        "Get answers to questions through AI-powered support around the clock.",
+        "Receive additional academic guidance from faculty and mentors.",
+      ],
+      visual: "solution",
     },
     {
-      title:
-        "GIMPA’s blended learning model offers the best of both worlds — structured in-person lectures and convenient online access to recorded sessions, giving students the flexibility to study at their own pace without compromising academic quality.",
-      category: "Blended Learning &Flexible Study Modes",
-      color: "#084F9E",
-      Icon: Laptop,
+      title: "Blended Learning & Flexible Study Modes",
+      points: [
+        "Combine structured in-person lectures with online learning.",
+        "Revisit recorded sessions and study with greater flexibility.",
+      ],
+      visual: "assess",
     },
   ];
 
   return (
-    <section
-      style={{
-        background: "#F5F7FA",
-        padding: "80px 0",
-        fontFamily: "Poppins, sans-serif",
-      }}
-    >
-      <div className="container">
-        {/* Header */}
-        <div style={{ marginBottom: "40px" }}>
-          <h2 style={{ fontSize: "32px", fontWeight: 700, color: "#0A2A43" }}>
-            What We Offer
-          </h2>
-        </div>
+    <section className="offers-section">
+      <div className="offers-container">
+        {/* Editorial heading */}
+        <header className="offers-header">
+          
 
-        {/* Grid */}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
-            gap: "24px",
-          }}
-        >
-          {courses.map(({ title, category, color, Icon }, index) => (
-            <div
-              key={index}
-              style={{
-                background: "#fff",
-                borderRadius: "16px",
-                overflow: "hidden",
-                boxShadow: "0 4px 20px rgba(0,0,0,0.06)",
-                transition: "transform 0.3s ease, box-shadow 0.3s ease",
-                cursor: "pointer",
-                padding: "28px",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = "translateY(-6px)";
-                e.currentTarget.style.boxShadow =
-                  "0 12px 28px rgba(10,102,194,0.12)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = "translateY(0)";
-                e.currentTarget.style.boxShadow = "0 4px 20px rgba(0,0,0,0.06)";
-              }}
+          <h2 className="offers-heading">
+            What we offer goes beyond the classroom.
+          </h2>
+
+          <p className="offers-intro">
+            The tools, knowledge, and opportunities to help you build your
+            future in technology.
+          </p>
+        </header>
+
+        {/* Offerings */}
+        <div className="offers-grid">
+          {offers.map((offer, index) => (
+            <article
+              className="offer-item"
+              key={offer.title}
+              style={{ animationDelay: `${index * 90}ms` }}
             >
-              {/* Icon Tile */}
+              {/* Decorative geometric illustration */}
               <div
-                style={{
-                  width: "44px",
-                  height: "44px",
-                  borderRadius: "12px",
-                  background: `${color}1A`,
-                  color,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  marginBottom: "16px",
-                }}
+                className={`offer-visual offer-visual--${offer.visual}`}
+                aria-hidden="true"
               >
-                <Icon size={22} strokeWidth={2} />
+                <span className="offer-orbit offer-orbit--one" />
+                <span className="offer-orbit offer-orbit--two" />
+                <span className="offer-orbit offer-orbit--three" />
+                <span className="offer-orbit offer-orbit--four" />
+                <span className="offer-orbit offer-orbit--five" />
               </div>
 
-              {/* Category Badge */}
-              <span
-                style={{
-                  background: color,
-                  color: "white",
-                  fontSize: "10px",
-                  fontWeight: 700,
-                  padding: "4px 12px",
-                  borderRadius: "50px",
-                  display: "inline-block",
-                  marginBottom: "14px",
-                  letterSpacing: "0.3px",
-                }}
-              >
-                {category}
-              </span>
+              <h3 className="offer-title">{offer.title}</h3>
 
-              {/* Title */}
-              <h3
-                style={{
-                  fontSize: "15px",
-                  fontWeight: 600,
-                  color: "#0A2A43",
-                  lineHeight: "1.6",
-                  margin: 0,
-                }}
-              >
-                {title}
-              </h3>
-            </div>
+              <ul className="offer-points">
+                {offer.points.map((point) => (
+                  <li key={point}>{point}</li>
+                ))}
+              </ul>
+            </article>
           ))}
         </div>
 
-        {/* View All Button */}
-        <div style={{ textAlign: "center", marginTop: "40px" }}>
-          <button
-            style={{
-              background: "transparent",
-              color: "#0A66C2",
-              border: "2px solid #0A66C2",
-              padding: "12px 32px",
-              borderRadius: "50px",
-              fontWeight: 600,
-              fontSize: "14px",
-              cursor: "pointer",
-              fontFamily: "Poppins, sans-serif",
-              transition: "all 0.3s ease",
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "8px",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = "#0A66C2";
-              e.currentTarget.style.color = "white";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = "transparent";
-              e.currentTarget.style.color = "#0A66C2";
-            }}
-          >
-            View All Courses
-            <ArrowRight size={16} strokeWidth={2.5} />
-          </button>
-        </div>
+        {/* Closing statement */}
+        <p className="offers-footer">
+          Build your knowledge, explore new possibilities, and prepare to make
+          a meaningful contribution to the world of technology.
+        </p>
       </div>
+
+      <style>{`
+        .offers-section {
+          background: #ffffff;
+          padding: 86px 24px 76px;
+          color: #111111;
+          font-family: Poppins, sans-serif;
+          overflow: hidden;
+        }
+
+        .offers-container {
+          width: 100%;
+          max-width: 1140px;
+          margin: 0 auto;
+        }
+
+        /* Heading */
+
+        .offers-header {
+          max-width: 720px;
+          margin-bottom: 66px;
+        }
+
+        .offers-eyebrow {
+          margin: 0 0 20px;
+          color: #027cb9;
+          font-size: 11px;
+          font-weight: 700;
+          letter-spacing: 1.8px;
+        }
+
+        .offers-heading {
+          max-width: 680px;
+          margin: 0;
+          color: #111111;
+          font-size: clamp(36px, 4.5vw, 48px);
+          line-height: 1.16;
+          font-weight: 700;
+          letter-spacing: -1.9px;
+        }
+
+        .offers-intro {
+          max-width: 570px;
+          margin: 19px 0 0;
+          color: #646464;
+          font-size: 14px;
+          line-height: 1.9;
+        }
+
+        /* Open three-column layout: no cards, borders, or shadows */
+
+        .offers-grid {
+          display: grid;
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          column-gap: 54px;
+          row-gap: 64px;
+        }
+
+        .offer-item {
+          min-width: 0;
+          animation: offerFadeIn 650ms ease-out both;
+        }
+
+        /* Geometric illustrations */
+
+        .offer-visual {
+          position: relative;
+          width: 120px;
+          height: 126px;
+          margin-bottom: 21px;
+          isolation: isolate;
+        }
+
+        .offer-orbit {
+          position: absolute;
+          display: block;
+          border: 1.4px solid #161616;
+          border-radius: 50%;
+          background: transparent;
+          transition:
+            transform 480ms cubic-bezier(0.2, 0.7, 0.2, 1),
+            border-color 300ms ease,
+            opacity 300ms ease;
+        }
+
+        /* Illustration 1: concentric circles */
+
+        .offer-visual--assess .offer-orbit--one {
+          width: 95px;
+          height: 95px;
+          left: 1px;
+          top: 17px;
+        }
+
+        .offer-visual--assess .offer-orbit--two {
+          width: 47px;
+          height: 47px;
+          left: 25px;
+          top: 41px;
+          border-color: #027cb9;
+        }
+
+        .offer-visual--assess .offer-orbit--three {
+          width: 18px;
+          height: 18px;
+          left: 71px;
+          top: 18px;
+          border-color: #027cb9;
+        }
+
+        .offer-visual--assess .offer-orbit--four,
+        .offer-visual--assess .offer-orbit--five {
+          display: none;
+        }
+
+        /* Illustration 2: overlapping, offset circles */
+
+        .offer-visual--pilot .offer-orbit {
+          width: 81px;
+          height: 81px;
+        }
+
+        .offer-visual--pilot .offer-orbit--one {
+          left: 3px;
+          top: 40px;
+          border-color: #d2d2d2;
+        }
+
+        .offer-visual--pilot .offer-orbit--two {
+          left: 11px;
+          top: 32px;
+          border-color: #c4c4c4;
+        }
+
+        .offer-visual--pilot .offer-orbit--three {
+          left: 19px;
+          top: 24px;
+          border-color: #aaaaaa;
+        }
+
+        .offer-visual--pilot .offer-orbit--four {
+          left: 27px;
+          top: 16px;
+          border-color: #777777;
+          opacity: 0.75;
+        }
+
+        .offer-visual--pilot .offer-orbit--five {
+          left: 35px;
+          top: 8px;
+          border-color: #027cb9;
+        }
+
+        /* Illustration 3: two intersecting circles */
+
+        .offer-visual--solution .offer-orbit--one,
+        .offer-visual--solution .offer-orbit--two {
+          width: 96px;
+          height: 96px;
+          left: 2px;
+        }
+
+        .offer-visual--solution .offer-orbit--one {
+          top: 22px;
+          border-color: #151515;
+        }
+
+        .offer-visual--solution .offer-orbit--two {
+          top: 0;
+          border-color: #315b99;
+        }
+
+        .offer-visual--solution .offer-orbit--three,
+        .offer-visual--solution .offer-orbit--four,
+        .offer-visual--solution .offer-orbit--five {
+          display: none;
+        }
+
+        /* Motion responds to hovering over each offering */
+
+        .offer-item:hover .offer-visual--assess .offer-orbit--one {
+          transform: scale(1.04);
+        }
+
+        .offer-item:hover .offer-visual--assess .offer-orbit--two {
+          transform: scale(1.12);
+        }
+
+        .offer-item:hover .offer-visual--assess .offer-orbit--three {
+          transform: translate(7px, -4px);
+        }
+
+        .offer-item:hover .offer-visual--pilot .offer-orbit--one {
+          transform: translate(-7px, 5px);
+        }
+
+        .offer-item:hover .offer-visual--pilot .offer-orbit--two {
+          transform: translate(-4px, 3px);
+        }
+
+        .offer-item:hover .offer-visual--pilot .offer-orbit--three {
+          transform: translate(-1px, 1px);
+        }
+
+        .offer-item:hover .offer-visual--pilot .offer-orbit--four {
+          transform: translate(3px, -2px);
+        }
+
+        .offer-item:hover .offer-visual--pilot .offer-orbit--five {
+          transform: translate(7px, -5px);
+        }
+
+        .offer-item:hover .offer-visual--solution .offer-orbit--one {
+          transform: translateY(5px);
+        }
+
+        .offer-item:hover .offer-visual--solution .offer-orbit--two {
+          transform: translateY(-5px);
+        }
+
+        /* Offering text */
+
+        .offer-title {
+          max-width: 310px;
+          margin: 0 0 20px;
+          color: #111111;
+          font-size: 21px;
+          line-height: 1.4;
+          font-weight: 650;
+          letter-spacing: -0.55px;
+          transition: color 250ms ease;
+        }
+
+        .offer-item:hover .offer-title {
+          color: #027cb9;
+        }
+
+        .offer-points {
+          display: grid;
+          gap: 10px;
+          margin: 0;
+          padding: 0 0 0 17px;
+          color: #454545;
+          font-size: 12px;
+          line-height: 1.75;
+          list-style: disc;
+        }
+
+        .offer-points li {
+          padding-left: 2px;
+        }
+
+        .offer-points li::marker {
+          color: #027cb9;
+          font-size: 9px;
+        }
+
+        /* Closing text, similar to the reference's understated footer */
+
+        .offers-footer {
+          max-width: 690px;
+          margin: 64px 0 0;
+          color: #555555;
+          font-size: 12px;
+          line-height: 1.85;
+        }
+
+        @keyframes offerFadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(14px);
+          }
+
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        /* Tablet */
+
+        @media (max-width: 900px) {
+          .offers-section {
+            padding: 68px 24px 60px;
+          }
+
+          .offers-header {
+            margin-bottom: 52px;
+          }
+
+          .offers-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            column-gap: 40px;
+            row-gap: 52px;
+          }
+
+          .offer-title {
+            font-size: 20px;
+          }
+
+          .offers-footer {
+            margin-top: 52px;
+          }
+        }
+
+        /* Mobile */
+
+        @media (max-width: 560px) {
+          .offers-section {
+            padding: 48px 22px 46px;
+          }
+
+          .offers-header {
+            margin-bottom: 42px;
+          }
+
+          .offers-eyebrow {
+            margin-bottom: 15px;
+            font-size: 10px;
+          }
+
+          .offers-heading {
+            font-size: clamp(32px, 8vw, 39px);
+            line-height: 1.18;
+            letter-spacing: -1.3px;
+          }
+
+          .offers-intro {
+            margin-top: 15px;
+            font-size: 13px;
+            line-height: 1.8;
+          }
+
+          .offers-grid {
+            grid-template-columns: 1fr;
+            row-gap: 44px;
+          }
+
+          .offer-visual {
+            margin-bottom: 17px;
+            transform-origin: left center;
+          }
+
+          .offer-title {
+            max-width: 340px;
+            margin-bottom: 14px;
+            font-size: 21px;
+          }
+
+          .offer-points {
+            max-width: 410px;
+            font-size: 12px;
+            line-height: 1.8;
+          }
+
+          .offers-footer {
+            margin-top: 46px;
+            padding-top: 20px;
+            border-top: 1px solid #eeeeee;
+            font-size: 12px;
+          }
+        }
+
+        /* Respect the visitor's motion preferences */
+
+        @media (prefers-reduced-motion: reduce) {
+          .offer-item {
+            animation: none;
+          }
+
+          .offer-orbit,
+          .offer-title {
+            transition: none;
+          }
+        }
+      `}</style>
     </section>
   );
 }
